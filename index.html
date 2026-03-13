@@ -10,28 +10,20 @@ body{background:#0f0f13;color:#e8e8f0;font-family:sans-serif;font-size:13px}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:#3a3a4a;border-radius:3px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* Layout */
 #header{background:#1a1a24;border-bottom:1px solid #2a2a3a;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 #tabs{display:flex;gap:1px;padding:8px 16px 0;background:#15151f;border-bottom:1px solid #2a2a3a;flex-wrap:wrap}
 #content{padding:16px}
-
-/* Tabs */
 .tab-btn{padding:6px 12px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-size:11px;font-weight:600;background:transparent;color:#888;transition:all .15s;position:relative}
 .tab-btn.active{background:#a855f7;color:#fff}
 .tab-btn.trash-tab{color:#f59e0b}
 .tab-btn.trash-tab.active{background:#b45309}
 .tab-badge{position:absolute;top:2px;right:1px;background:#ef4444;border-radius:50%;width:13px;height:13px;font-size:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-
-/* Buttons */
 .btn{padding:5px 12px;border-radius:7px;border:none;cursor:pointer;background:#2a2a3a;color:#aaa;font-size:11px;font-weight:600}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-primary{background:#a855f7;color:#fff}
 .btn-danger{background:#3a1a1a;color:#ef4444}
 .btn-sm{padding:2px 8px;font-size:10px}
 .btn-green{background:#14532d;color:#22c55e}
-
-/* Table */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th{text-align:left;padding:8px 10px;background:#1a1a24;color:#777;font-weight:600;border-bottom:1px solid #2a2a3a;white-space:nowrap;font-size:11px;cursor:pointer;user-select:none}
@@ -39,15 +31,11 @@ th:hover{color:#a855f7}
 th.active-sort{color:#a855f7}
 td{padding:8px 10px;border-bottom:1px solid #1e1e2a;vertical-align:middle;font-size:12px}
 tr:hover td{background:#1e1e28}
-
-/* Cards */
 .card{background:#1a1a24;border:1px solid #2a2a3a;border-radius:10px;padding:14px}
 .kpi-card{background:#1a1a24;border-radius:10px;padding:14px 16px;flex:1;min-width:100px;cursor:pointer;border:1px solid #2a2a3a}
 .kpi-label{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .kpi-value{font-size:17px;font-weight:700}
 .kpi-sub{font-size:9px;color:#666;margin-top:2px}
-
-/* Misc */
 .badge{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap}
 .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 .empty{text-align:center;color:#555;padding:40px 0;font-size:13px}
@@ -56,28 +44,18 @@ tr:hover td{background:#1e1e28}
 .search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#555;font-size:11px;pointer-events:none}
 input,select{background:#0f0f13;border:1px solid #2a2a3a;border-radius:7px;color:#e8e8f0;padding:6px 9px;font-size:12px;width:100%}
 input:focus,select:focus{outline:none;border-color:#a855f7}
-
-/* Modal */
 .modal-overlay{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:100}
 .modal-box{background:#1a1a24;border:1px solid #2a2a3a;border-radius:12px;padding:22px;width:400px;max-width:95vw;max-height:90vh;overflow-y:auto}
 .form-field{margin-bottom:10px}
 .form-field label{display:block;font-size:10px;color:#888;margin-bottom:3px}
 .checkbox-label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px}
 .checkbox-label input{width:14px;height:14px;flex-shrink:0}
-
-/* Toast */
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:9px;font-weight:700;font-size:12px;z-index:200;box-shadow:0 4px 16px #0007;white-space:nowrap;display:none}
-
-/* Filter btns */
 .filter-btn{padding:3px 10px;border:none;border-radius:5px;cursor:pointer;font-size:10px;font-weight:600;background:#2a2a3a;color:#888}
 .filter-btn.active{background:#a855f7;color:#fff}
-
-/* Analysis bar */
 .bar-wrap{display:flex;align-items:center;gap:6px}
 .bar-bg{background:#2a2a3a;border-radius:3px;height:5px;flex:1}
 .bar-fill{border-radius:3px;height:5px}
-
-/* Inline check button */
 .check-btn{width:22px;height:22px;border-radius:4px;border:2px solid #3a3a4a;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#22c55e;font-size:11px;flex-shrink:0}
 .check-btn.checked{border-color:#22c55e;background:#14532d}
 </style>
@@ -104,9 +82,6 @@ input:focus,select:focus{outline:none;border-color:#a855f7}
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// DATA & STORAGE
-// ═══════════════════════════════════════════════════════
 const TODAY = new Date().toISOString().slice(0,10);
 const SK = 'lm_v1';
 const EXPENSE_CATS = ['製造','宣伝','流通','制作','ライセンス','管理','その他'];
@@ -170,9 +145,6 @@ function undo(){
 
 function onSearch(v){ searchQ = v.toLowerCase(); render(); }
 
-// ═══════════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════════
 const fmt = n => Number(n).toLocaleString('ja-JP');
 
 function calcStock(inv){
@@ -223,9 +195,21 @@ function showToast(msg, color='#22c55e'){
 
 function nextId(arr){ return arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1; }
 
-// ═══════════════════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════════════════
+// アーティストに紐づくタイトル一覧を返す
+function getTitlesForArtist(artist){
+  const titles = [...new Set(state.inventory.filter(i=>i.artist===artist).map(i=>i.title))];
+  return titles.length ? titles : ['（在庫登録が必要）'];
+}
+
+// 卸し履歴モーダルのアーティスト変更時にタイトルselectを更新
+function onDeliveryArtistChange(){
+  const artist = document.getElementById('f_artist')?.value;
+  const titleSel = document.getElementById('f_title');
+  if(!titleSel) return;
+  const titles = getTitlesForArtist(artist);
+  titleSel.innerHTML = titles.map(t=>`<option value="${t}">${t}</option>`).join('');
+}
+
 function renderTabs(){
   const overdue = state.payments.filter(p=>p.status!=='入金済'&&p.dueDate&&p.dueDate<TODAY).length;
   const unpaidExp = state.expenses.filter(e=>!e.paid).length;
@@ -241,9 +225,6 @@ function renderTabs(){
 
 function setTab(i){ currentTab=i; render(); }
 
-// ═══════════════════════════════════════════════════════
-// STATS
-// ═══════════════════════════════════════════════════════
 function getStats(){
   const totalIncome = state.payments.filter(p=>p.status==='入金済').reduce((s,p)=>s+Number(p.amount),0);
   const pendingIncome = state.payments.filter(p=>p.status!=='入金済').reduce((s,p)=>s+Number(p.amount),0);
@@ -256,9 +237,6 @@ function getStats(){
   return {totalIncome,pendingIncome,totalExpense,profit,totalStock,overdue,unpaidDel,unpaidDelAmt};
 }
 
-// ═══════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════
 function render(){
   renderTabs();
   const content = document.getElementById('content');
@@ -274,7 +252,6 @@ function render(){
   }
 }
 
-// ── DASHBOARD ──────────────────────────────────────────
 function renderDashboard(){
   const {totalIncome,pendingIncome,totalExpense,profit,totalStock,overdue,unpaidDel,unpaidDelAmt} = getStats();
   const cards = [
@@ -292,7 +269,6 @@ function renderDashboard(){
       ${c.sub?`<div class="kpi-sub">${c.sub}</div>`:''}
     </div>`).join('');
 
-  // 経費内訳
   const expByCat = EXPENSE_CATS.map(c=>({c,v:state.expenses.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.amount),0)})).filter(x=>x.v>0);
   const maxExp = Math.max(...expByCat.map(x=>x.v),1);
   const expHtml = expByCat.map(({c,v})=>`
@@ -301,7 +277,6 @@ function renderDashboard(){
       <div style="background:#2a2a3a;border-radius:3px;height:4px"><div style="width:${(v/maxExp)*100}%;background:linear-gradient(90deg,#ef4444,#f97316);border-radius:3px;height:4px"></div></div>
     </div>`).join('');
 
-  // 卸しTop
   const tq = {};
   state.deliveries.forEach(d=>{const k=`${d.artist} / ${d.title}`;tq[k]=(tq[k]||0)+Number(d.qty);});
   const topHtml = Object.entries(tq).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([t,q],i)=>`
@@ -311,7 +286,6 @@ function renderDashboard(){
       <span style="color:#a855f7;font-weight:700;font-size:11px">${fmt(q)}枚</span>
     </div>`).join('');
 
-  // 在庫残少
   const lowStock = state.inventory.filter(i=>calcStock(i)<30);
   const lowHtml = lowStock.length===0
     ? '<div style="color:#555;font-size:11px">残少なし</div>'
@@ -321,7 +295,6 @@ function renderDashboard(){
         <span style="color:#ef4444;font-weight:700">${fmt(calcStock(i))}点</span>
       </div>`).join('');
 
-  // 未回収
   const urHtml = unpaidDel.length===0
     ? '<div style="color:#555;font-size:11px">未回収なし</div>'
     : unpaidDel.slice(0,4).map(d=>`
@@ -340,7 +313,6 @@ function renderDashboard(){
     </div>`;
 }
 
-// ── WHOLESALERS ────────────────────────────────────────
 function renderWholesalers(){
   let rows = sortRows(filterRows(state.wholesalers,['name','type','region','contact']), 'name');
   const tbody = rows.map(w=>{
@@ -363,7 +335,6 @@ function renderWholesalers(){
     <div class="tbl-wrap"><table><thead><tr>${th('卸先名','name')}${th('種別','type')}${th('地域','region')}${th('連絡先','contact')}${th('支払条件','terms')}<th>総卸し枚数</th><th>未回収</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-// ── DELIVERIES ─────────────────────────────────────────
 function renderDeliveries(){
   let rows = state.deliveries;
   if(deliveryFilter==='未入金') rows=rows.filter(d=>!d.paid);
@@ -401,7 +372,6 @@ function renderDeliveries(){
 
 function setDeliveryFilter(f){ deliveryFilter=f; render(); }
 
-// ── PAYMENTS ───────────────────────────────────────────
 function renderPayments(){
   let rows = sortRows(filterRows(state.payments,['from','title','status']), 'date', ['amount']);
   if(!sortState['date_pay']) rows = rows.reverse();
@@ -438,7 +408,6 @@ function renderPayments(){
     <div class="tbl-wrap"><table><thead><tr>${th('日付','date')}${th('入金元','from')}${th('件名','title')}${th('金額','amount',['amount'])}${th('ステータス','status')}<th>入金期限</th><th>種別</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-// ── INVENTORY ──────────────────────────────────────────
 function renderInventory(){
   let rows = sortRows(filterRows(state.inventory,['artist','title','format','barcode']), 'artist');
   const tbody = rows.map(i=>{
@@ -465,7 +434,6 @@ function renderInventory(){
     <div class="tbl-wrap"><table><thead><tr>${th('アーティスト','artist')}${th('タイトル','title')}${th('形態','format')}${th('発売日','releaseDate')}<th>製造数</th><th>卸し数</th><th>返品</th><th>在庫残</th><th>消化率</th><th>バーコード</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-// ── EXPENSES ───────────────────────────────────────────
 function renderExpenses(){
   let rows = sortRows(filterRows(state.expenses,['category','detail','artist','title']), 'date', ['amount']);
   if(!sortState['date']) rows = rows.reverse();
@@ -494,7 +462,6 @@ function renderExpenses(){
     <div class="tbl-wrap"><table><thead><tr>${th('日付','date')}${th('カテゴリ','category')}${th('内容','detail')}${th('金額','amount',['amount'])}<th>支払</th><th>アーティスト</th><th>作品</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-// ── ANALYSIS ───────────────────────────────────────────
 let analysisView = 'title';
 function setAnalysisView(v){ analysisView=v; render(); }
 
@@ -515,7 +482,7 @@ function renderAnalysis(){
   };
 
   const rows = analysisView==='title'
-    ? titleKeys.map(({k,artist,title})=>({name:`${artist} / ${title}`, ...calcRow(x=>(x.title===title||x.title===title)&&x.artist===artist)}))
+    ? titleKeys.map(({k,artist,title})=>({name:`${artist} / ${title}`, ...calcRow(x=>x.title===title&&x.artist===artist)}))
     : artists.map(a=>({name:a, ...calcRow(x=>x.artist===a)}));
 
   const maxAmt = Math.max(...rows.map(r=>Math.max(r.dPaid,r.exp)),1);
@@ -540,7 +507,6 @@ function renderAnalysis(){
   return `<div style="margin-bottom:14px">${btns}</div>${rows.length===0?'<div class="empty">データがありません</div>':cards}`;
 }
 
-// ── TRASH ──────────────────────────────────────────────
 let trashView = 'trash';
 function setTrashView(v){ trashView=v; render(); }
 
@@ -575,9 +541,6 @@ function renderTrash(){
   return `<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${btns}</div>${items}`;
 }
 
-// ═══════════════════════════════════════════════════════
-// ACTIONS
-// ═══════════════════════════════════════════════════════
 function deleteItem(type, id){
   snapshot();
   const item = state[type].find(x=>x.id===id);
@@ -606,7 +569,6 @@ function restoreItem(tid){
 function deleteFromTrash(tid){ trash=trash.filter(x=>x.id!==tid); render(); }
 function emptyTrash(){ trash=[]; render(); }
 
-// ── Toggle paid（卸し入金 → 入金・売上に自動連動）──────
 function togglePaid(id){
   snapshot();
   const del = state.deliveries.find(x=>x.id===id);
@@ -615,7 +577,6 @@ function togglePaid(id){
   del.paid = newPaid;
 
   if(newPaid){
-    // 既に自動生成済みでなければ追加
     if(!state.payments.some(p=>p.sourceDeliveryId===id)){
       state.payments.push({
         id: nextId(state.payments),
@@ -630,15 +591,11 @@ function togglePaid(id){
       });
     }
   } else {
-    // チェックOFF → 自動生成レコードを削除
     state.payments = state.payments.filter(p=>p.sourceDeliveryId!==id);
   }
   save(); render(); showToast('入金状況を更新しました ✓');
 }
 
-// ═══════════════════════════════════════════════════════
-// MODAL
-// ═══════════════════════════════════════════════════════
 let modalType = null;
 let modalId = null;
 
@@ -660,10 +617,36 @@ function openModal(type, id=null){
   if(type==='ws'){
     fields = inp('卸先名','name',item?.name)+sel('種別','type',item?.type,WS_TYPES)+inp('地域','region',item?.region)+inp('連絡先','contact',item?.contact)+inp('支払条件','terms',item?.terms)+inp('メモ','memo',item?.memo);
   } else if(type==='del'){
-    const selArtist = sel('アーティスト','artist',item?.artist||artists[0],artists);
-    const curArtist = item?.artist||artists[0];
-    const titles = atMap[curArtist]||[];
-    fields = inp('卸し日','date',item?.date||TODAY,'date')+sel('卸先','wholesaler',item?.wholesaler,state.wholesalers.map(w=>w.name))+selArtist+sel('タイトル','title',item?.title,titles.length?titles:['（在庫登録が必要）'])+sel('形態','format',item?.format,FORMATS)+inp('枚数','qty',item?.qty,'number')+inp('単価（円）','unitPrice',item?.unitPrice,'number')+chk('入金済み','paid',item?.paid)+inp('メモ','memo',item?.memo);
+    // アーティストの初期値を決定
+    const initArtist = item?.artist || artists[0] || '';
+    // その初期アーティストのタイトル一覧
+    const initTitles = getTitlesForArtist(initArtist);
+
+    // アーティストselectにonchange、タイトルselectはinitTitlesで生成
+    const artistSelHtml = `
+      <div class="form-field">
+        <label>アーティスト</label>
+        <select id="f_artist" onchange="onDeliveryArtistChange()">
+          ${artists.map(a=>`<option value="${a}" ${a===initArtist?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>`;
+    const titleSelHtml = `
+      <div class="form-field">
+        <label>タイトル</label>
+        <select id="f_title">
+          ${initTitles.map(t=>`<option value="${t}" ${t===item?.title?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>`;
+
+    fields = inp('卸し日','date',item?.date||TODAY,'date')
+      + sel('卸先','wholesaler',item?.wholesaler,state.wholesalers.map(w=>w.name))
+      + artistSelHtml
+      + titleSelHtml
+      + sel('形態','format',item?.format,FORMATS)
+      + inp('枚数','qty',item?.qty,'number')
+      + inp('単価（円）','unitPrice',item?.unitPrice,'number')
+      + chk('入金済み','paid',item?.paid)
+      + inp('メモ','memo',item?.memo);
   } else if(type==='pay'){
     fields = inp('日付','date',item?.date||TODAY,'date')+sel('入金元','from',item?.from,state.wholesalers.map(w=>w.name))+inp('件名','title',item?.title)+inp('金額（円）','amount',item?.amount,'number')+sel('ステータス','status',item?.status,PAY_STATUS)+inp('入金期限','dueDate',item?.dueDate,'date')+inp('メモ','memo',item?.memo);
   } else if(type==='inv'){
@@ -721,9 +704,6 @@ function saveModal(){
   showToast(modalId?'保存しました ✓':'追加しました ✓');
 }
 
-// ═══════════════════════════════════════════════════════
-// EXPORT / IMPORT
-// ═══════════════════════════════════════════════════════
 function exportCSV(){
   let out = '';
   const sheets = {
@@ -769,9 +749,6 @@ function importJSON(){
   input.click();
 }
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
 render();
 </script>
 </body>
