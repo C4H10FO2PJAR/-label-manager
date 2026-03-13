@@ -2,663 +2,777 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Label Manager</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0f0f13;color:#e8e8f0;font-family:sans-serif}
-  input,select,button{font-family:sans-serif}
-  ::-webkit-scrollbar{width:6px;height:6px}
-  ::-webkit-scrollbar-track{background:#1a1a24}
-  ::-webkit-scrollbar-thumb{background:#3a3a4a;border-radius:3px}
-  @keyframes spin{to{transform:rotate(360deg)}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f13;color:#e8e8f0;font-family:sans-serif;font-size:13px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#3a3a4a;border-radius:3px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Layout */
+#header{background:#1a1a24;border-bottom:1px solid #2a2a3a;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#tabs{display:flex;gap:1px;padding:8px 16px 0;background:#15151f;border-bottom:1px solid #2a2a3a;flex-wrap:wrap}
+#content{padding:16px}
+
+/* Tabs */
+.tab-btn{padding:6px 12px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-size:11px;font-weight:600;background:transparent;color:#888;transition:all .15s;position:relative}
+.tab-btn.active{background:#a855f7;color:#fff}
+.tab-btn.trash-tab{color:#f59e0b}
+.tab-btn.trash-tab.active{background:#b45309}
+.tab-badge{position:absolute;top:2px;right:1px;background:#ef4444;border-radius:50%;width:13px;height:13px;font-size:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+
+/* Buttons */
+.btn{padding:5px 12px;border-radius:7px;border:none;cursor:pointer;background:#2a2a3a;color:#aaa;font-size:11px;font-weight:600}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:#a855f7;color:#fff}
+.btn-danger{background:#3a1a1a;color:#ef4444}
+.btn-sm{padding:2px 8px;font-size:10px}
+.btn-green{background:#14532d;color:#22c55e}
+
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 10px;background:#1a1a24;color:#777;font-weight:600;border-bottom:1px solid #2a2a3a;white-space:nowrap;font-size:11px;cursor:pointer;user-select:none}
+th:hover{color:#a855f7}
+th.active-sort{color:#a855f7}
+td{padding:8px 10px;border-bottom:1px solid #1e1e2a;vertical-align:middle;font-size:12px}
+tr:hover td{background:#1e1e28}
+
+/* Cards */
+.card{background:#1a1a24;border:1px solid #2a2a3a;border-radius:10px;padding:14px}
+.kpi-card{background:#1a1a24;border-radius:10px;padding:14px 16px;flex:1;min-width:100px;cursor:pointer;border:1px solid #2a2a3a}
+.kpi-label{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-value{font-size:17px;font-weight:700}
+.kpi-sub{font-size:9px;color:#666;margin-top:2px}
+
+/* Misc */
+.badge{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.empty{text-align:center;color:#555;padding:40px 0;font-size:13px}
+.search-wrap{position:relative;flex:1;max-width:260px}
+.search-wrap input{width:100%;padding:5px 10px 5px 26px;background:#0f0f13;border:1px solid #2a2a3a;border-radius:7px;color:#e8e8f0;font-size:11px}
+.search-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#555;font-size:11px;pointer-events:none}
+input,select{background:#0f0f13;border:1px solid #2a2a3a;border-radius:7px;color:#e8e8f0;padding:6px 9px;font-size:12px;width:100%}
+input:focus,select:focus{outline:none;border-color:#a855f7}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:100}
+.modal-box{background:#1a1a24;border:1px solid #2a2a3a;border-radius:12px;padding:22px;width:400px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.form-field{margin-bottom:10px}
+.form-field label{display:block;font-size:10px;color:#888;margin-bottom:3px}
+.checkbox-label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px}
+.checkbox-label input{width:14px;height:14px;flex-shrink:0}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:9px;font-weight:700;font-size:12px;z-index:200;box-shadow:0 4px 16px #0007;white-space:nowrap;display:none}
+
+/* Filter btns */
+.filter-btn{padding:3px 10px;border:none;border-radius:5px;cursor:pointer;font-size:10px;font-weight:600;background:#2a2a3a;color:#888}
+.filter-btn.active{background:#a855f7;color:#fff}
+
+/* Analysis bar */
+.bar-wrap{display:flex;align-items:center;gap:6px}
+.bar-bg{background:#2a2a3a;border-radius:3px;height:5px;flex:1}
+.bar-fill{border-radius:3px;height:5px}
+
+/* Inline check button */
+.check-btn{width:22px;height:22px;border-radius:4px;border:2px solid #3a3a4a;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#22c55e;font-size:11px;flex-shrink:0}
+.check-btn.checked{border-color:#22c55e;background:#14532d}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useCallback,useEffect}=React;
-const fmt=n=>Number(n).toLocaleString("ja-JP");
-const TODAY=new Date().toISOString().slice(0,10);
-const EXPENSE_CATS=["製造","宣伝","流通","制作","ライセンス","管理","その他"];
-const FORMATS=["CD","LP","7inch","12inch","カセット","デジタル","その他"];
-const WS_TYPES=["実店舗","EC","配信","卸問屋","その他"];
-const PAY_STATUS=["入金済","未入金","一部入金"];
-const TYPE_LABELS={wholesalers:"卸先",deliveries:"卸し履歴",payments:"入金・売上",inventory:"在庫",expenses:"経費"};
-const TABS=["ダッシュボード","卸先・流通","卸し履歴","入金・売上","在庫・残数","諸経費","収支分析","🗑 ゴミ箱"];
-const STORAGE_KEY="label_manager_v5";
 
-const SEED={
+<div id="header">
+  <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#ec4899);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🎵</div>
+  <span style="font-weight:700;font-size:15px;letter-spacing:1px">Label Manager</span>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" placeholder="全体を検索..." oninput="onSearch(this.value)">
+  </div>
+  <div style="margin-left:auto;display:flex;gap:5px;flex-wrap:wrap">
+    <button class="btn" id="undoBtn" onclick="undo()" disabled>↩ 元に戻す</button>
+    <button class="btn" onclick="exportCSV()">⬇ CSV</button>
+    <button class="btn" style="color:#38bdf8" onclick="exportJSON()">💾 バックアップ</button>
+    <button class="btn" style="color:#22c55e" onclick="importJSON()">📂 復元</button>
+  </div>
+</div>
+
+<div id="tabs"></div>
+<div id="content"></div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA & STORAGE
+// ═══════════════════════════════════════════════════════
+const TODAY = new Date().toISOString().slice(0,10);
+const SK = 'lm_v1';
+const EXPENSE_CATS = ['製造','宣伝','流通','制作','ライセンス','管理','その他'];
+const FORMATS = ['CD','LP','7inch','12inch','カセット','デジタル','その他'];
+const WS_TYPES = ['実店舗','EC','配信','卸問屋','その他'];
+const PAY_STATUS = ['入金済','未入金','一部入金'];
+const TAB_NAMES = ['ダッシュボード','卸先・流通','卸し履歴','入金・売上','在庫・残数','諸経費','収支分析','🗑 ゴミ箱'];
+
+const SEED = {
   wholesalers:[
-    {id:1,name:"タワーレコード",type:"実店舗",contact:"tanaka@tower.co.jp",terms:"翌月末",region:"国内",memo:""},
-    {id:2,name:"HMV",type:"実店舗",contact:"sales@hmv.co.jp",terms:"60日後",region:"国内",memo:""},
-    {id:3,name:"Amazon",type:"EC",contact:"vendor@amazon.co.jp",terms:"翌月15日",region:"国内",memo:""},
+    {id:1,name:'タワーレコード',type:'実店舗',contact:'tanaka@tower.co.jp',terms:'翌月末',region:'国内',memo:''},
+    {id:2,name:'HMV',type:'実店舗',contact:'sales@hmv.co.jp',terms:'60日後',region:'国内',memo:''},
+    {id:3,name:'Amazon',type:'EC',contact:'vendor@amazon.co.jp',terms:'翌月15日',region:'国内',memo:''},
   ],
   deliveries:[
-    {id:1,date:"2025-01-10",wholesaler:"タワーレコード",artist:"夜想会",title:"1st Album「夜明け」",format:"CD",qty:50,unitPrice:1800,paid:true,memo:""},
-    {id:2,date:"2025-01-12",wholesaler:"HMV",artist:"夜想会",title:"1st Album「夜明け」",format:"CD",qty:40,unitPrice:1800,paid:true,memo:""},
-    {id:3,date:"2025-01-20",wholesaler:"Amazon",artist:"夜想会",title:"1st Album「夜明け」",format:"CD",qty:60,unitPrice:1700,paid:false,memo:""},
-    {id:4,date:"2025-02-05",wholesaler:"タワーレコード",artist:"夜想会",title:"2nd Single「光」",format:"7inch",qty:30,unitPrice:1200,paid:true,memo:""},
-    {id:5,date:"2025-02-10",wholesaler:"HMV",artist:"夜想会",title:"2nd Single「光」",format:"7inch",qty:25,unitPrice:1200,paid:false,memo:""},
-    {id:6,date:"2025-03-01",wholesaler:"タワーレコード",artist:"夜想会",title:"1st Album「夜明け」",format:"LP",qty:20,unitPrice:3500,paid:false,memo:""},
+    {id:1,date:'2025-01-10',wholesaler:'タワーレコード',artist:'夜想会',title:'1st Album「夜明け」',format:'CD',qty:50,unitPrice:1800,paid:true,memo:''},
+    {id:2,date:'2025-01-12',wholesaler:'HMV',artist:'夜想会',title:'1st Album「夜明け」',format:'CD',qty:40,unitPrice:1800,paid:true,memo:''},
+    {id:3,date:'2025-01-20',wholesaler:'Amazon',artist:'夜想会',title:'1st Album「夜明け」',format:'CD',qty:60,unitPrice:1700,paid:false,memo:''},
+    {id:4,date:'2025-02-05',wholesaler:'タワーレコード',artist:'夜想会',title:'2nd Single「光」',format:'7inch',qty:30,unitPrice:1200,paid:true,memo:''},
+    {id:5,date:'2025-02-10',wholesaler:'HMV',artist:'夜想会',title:'2nd Single「光」',format:'7inch',qty:25,unitPrice:1200,paid:false,memo:''},
+    {id:6,date:'2025-03-01',wholesaler:'タワーレコード',artist:'夜想会',title:'1st Album「夜明け」',format:'LP',qty:20,unitPrice:3500,paid:false,memo:''},
   ],
   payments:[
-    {id:1,date:"2025-01-15",from:"タワーレコード",title:"1st Album 委託精算",amount:85000,status:"入金済",dueDate:"2025-01-31",memo:""},
-    {id:2,date:"2025-02-28",from:"Amazon",title:"配信ロイヤリティ",amount:32000,status:"入金済",dueDate:"2025-02-28",memo:""},
-    {id:3,date:"2025-03-31",from:"HMV",title:"2月分精算",amount:41000,status:"未入金",dueDate:"2025-03-31",memo:""},
+    {id:1,date:'2025-01-15',from:'タワーレコード',title:'1st Album 委託精算',amount:85000,status:'入金済',dueDate:'2025-01-31',memo:''},
+    {id:2,date:'2025-02-28',from:'Amazon',title:'配信ロイヤリティ',amount:32000,status:'入金済',dueDate:'2025-02-28',memo:''},
+    {id:3,date:'2025-03-31',from:'HMV',title:'2月分精算',amount:41000,status:'未入金',dueDate:'2025-03-31',memo:''},
   ],
   inventory:[
-    {id:1,artist:"夜想会",title:"1st Album「夜明け」",format:"CD",total:300,returned:5,releaseDate:"2024-11-01",barcode:"4942463511234",memo:""},
-    {id:2,artist:"夜想会",title:"2nd Single「光」",format:"7inch",total:200,returned:0,releaseDate:"2025-01-20",barcode:"4942463511235",memo:""},
-    {id:3,artist:"夜想会",title:"1st Album「夜明け」",format:"LP",total:100,returned:2,releaseDate:"2024-11-01",barcode:"4942463511236",memo:""},
+    {id:1,artist:'夜想会',title:'1st Album「夜明け」',format:'CD',total:300,returned:5,releaseDate:'2024-11-01',barcode:'4942463511234',memo:''},
+    {id:2,artist:'夜想会',title:'2nd Single「光」',format:'7inch',total:200,returned:0,releaseDate:'2025-01-20',barcode:'4942463511235',memo:''},
+    {id:3,artist:'夜想会',title:'1st Album「夜明け」',format:'LP',total:100,returned:2,releaseDate:'2024-11-01',barcode:'4942463511236',memo:''},
   ],
   expenses:[
-    {id:1,date:"2025-01-10",category:"製造",detail:"CD プレス代",amount:180000,paid:true,artist:"夜想会",title:"1st Album「夜明け」",memo:""},
-    {id:2,date:"2025-01-20",category:"宣伝",detail:"SNS広告",amount:30000,paid:true,artist:"夜想会",title:"",memo:""},
-    {id:3,date:"2025-02-05",category:"流通",detail:"配送・梱包費",amount:12000,paid:true,artist:"",title:"",memo:""},
-    {id:4,date:"2025-02-15",category:"制作",detail:"マスタリング費",amount:55000,paid:false,artist:"夜想会",title:"2nd Single「光」",memo:""},
+    {id:1,date:'2025-01-10',category:'製造',detail:'CDプレス代',amount:180000,paid:true,artist:'夜想会',title:'1st Album「夜明け」',memo:''},
+    {id:2,date:'2025-01-20',category:'宣伝',detail:'SNS広告',amount:30000,paid:true,artist:'夜想会',title:'',memo:''},
+    {id:3,date:'2025-02-05',category:'流通',detail:'配送・梱包費',amount:12000,paid:true,artist:'',title:'',memo:''},
+    {id:4,date:'2025-02-15',category:'制作',detail:'マスタリング費',amount:55000,paid:false,artist:'夜想会',title:'2nd Single「光」',memo:''},
   ],
 };
 
-function loadStorage(){try{const v=localStorage.getItem(STORAGE_KEY);if(v)return JSON.parse(v);}catch(e){}return null;}
-function saveStorage(data){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){}}
+let state = JSON.parse(localStorage.getItem(SK) || 'null') || deepCopy(SEED);
+let trash = [];
+let past = [];
+let editLog = [];
+let currentTab = 0;
+let searchQ = '';
+let sortState = {};
+let deliveryFilter = 'すべて';
 
-function useHistory(init){
-  const[past,setPast]=useState([]);
-  const[present,setPresent]=useState(init);
-  const[loaded,setLoaded]=useState(false);
-  const[trash,setTrash]=useState([]);
-  const[editLog,setEditLog]=useState([]);
-  useEffect(()=>{const saved=loadStorage();if(saved)setPresent(saved);setLoaded(true);},[]);
-  const commit=useCallback((fn,log)=>{
-    setPresent(prev=>{
-      const next=typeof fn==="function"?fn(prev):fn;
-      setPast(p=>[...p.slice(-49),prev]);
-      if(log)setEditLog(l=>[{...log,at:new Date().toLocaleString("ja-JP")},...l.slice(0,99)]);
-      saveStorage(next);
-      return next;
-    });
-  },[]);
-  const undo=useCallback(()=>{
-    setPast(p=>{if(!p.length)return p;setPresent(p[p.length-1]);return p.slice(0,-1);});
-  },[]);
-  const softDelete=useCallback((type,id)=>{
-    setPresent(prev=>{
-      const item=prev[type].find(x=>x.id===id);if(!item)return prev;
-      setTrash(t=>[{id:Date.now(),type,item,deletedAt:new Date().toLocaleString("ja-JP")},...t]);
-      setPast(p=>[...p.slice(-49),prev]);
-      const next={...prev,[type]:prev[type].filter(x=>x.id!==id)};
-      saveStorage(next);return next;
-    });
-  },[]);
-  const restore=useCallback(tid=>{
-    setTrash(t=>{
-      const entry=t.find(x=>x.id===tid);if(!entry)return t;
-      setPresent(prev=>{
-        setPast(p=>[...p.slice(-49),prev]);
-        const next={...prev,[entry.type]:[...prev[entry.type],entry.item]};
-        saveStorage(next);return next;
-      });
-      return t.filter(x=>x.id!==tid);
-    });
-  },[]);
-  const emptyTrash=useCallback(tid=>{setTrash(t=>tid?t.filter(x=>x.id!==tid):[]);},[]);
-  return{data:present,loaded,commit,undo,canUndo:past.length>0,trash,softDelete,restore,emptyTrash,editLog};
+function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
+function save(){ localStorage.setItem(SK, JSON.stringify(state)); }
+function snapshot(){ past = [...past.slice(-49), deepCopy(state)]; updateUndoBtn(); }
+function updateUndoBtn(){ document.getElementById('undoBtn').disabled = past.length === 0; }
+
+function undo(){
+  if(!past.length) return;
+  state = past.pop();
+  save(); updateUndoBtn(); render();
+  showToast('元に戻しました', '#a855f7');
 }
 
-function useSort(dk,dd){
-  const[sk,setSk]=useState(dk);
-  const[sd,setSd]=useState(dd||"asc");
-  const toggle=k=>{if(k===sk){setSd(d=>d==="asc"?"desc":"asc");}else{setSk(k);setSd("asc");}};
-  const apply=(arr,numCols)=>{
-    const nc=numCols||[];
-    return[...arr].sort((a,b)=>{
-      let av=a[sk],bv=b[sk];
-      if(nc.includes(sk)){av=Number(av);bv=Number(bv);}
-      if(av==null)return 1;if(bv==null)return-1;
-      const c=typeof av==="number"?av-bv:String(av).localeCompare(String(bv),"ja");
-      return sd==="asc"?c:-c;
-    });
-  };
-  const SortTh=({k,children,style})=>(
-    <th onClick={()=>toggle(k)} style={{textAlign:"left",padding:"9px 11px",background:"#1a1a24",color:sk===k?"#a855f7":"#777",fontWeight:600,borderBottom:"1px solid #2a2a3a",whiteSpace:"nowrap",cursor:"pointer",userSelect:"none",fontSize:12,...(style||{})}}>
-      {children}<span style={{marginLeft:3,fontSize:10,opacity:sk===k?1:0.3}}>{sk===k?(sd==="asc"?"▲":"▼"):"⇅"}</span>
-    </th>
-  );
-  return{apply,SortTh};
+function onSearch(v){ searchQ = v.toLowerCase(); render(); }
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+const fmt = n => Number(n).toLocaleString('ja-JP');
+
+function calcStock(inv){
+  const dq = state.deliveries
+    .filter(d => d.artist===inv.artist && d.title===inv.title && d.format===inv.format)
+    .reduce((s,d)=>s+Number(d.qty),0);
+  return Number(inv.total) - dq + Number(inv.returned);
 }
 
-const Th=({children,style})=><th style={{textAlign:"left",padding:"9px 11px",background:"#1a1a24",color:"#777",fontWeight:600,borderBottom:"1px solid #2a2a3a",whiteSpace:"nowrap",fontSize:12,...(style||{})}}>{children}</th>;
-const Td=({children,style})=><td style={{padding:"9px 11px",borderBottom:"1px solid #1e1e2a",verticalAlign:"middle",fontSize:13,...(style||{})}}>{children}</td>;
-const Tbl=({children})=><div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse"}}>{children}</table></div>;
-const Btn=({onClick,disabled,children,style})=><button onClick={onClick} disabled={disabled} style={{padding:"6px 13px",borderRadius:7,border:"none",cursor:disabled?"not-allowed":"pointer",background:"#2a2a3a",color:"#aaa",fontSize:12,fontWeight:600,...(style||{})}}>{children}</button>;
-const AddBtn=({onClick})=><Btn onClick={onClick} style={{background:"#a855f7",color:"#fff"}}>＋ 追加</Btn>;
-const ActBtns=({onEdit,onDelete})=><div style={{display:"flex",gap:5}}><Btn onClick={onEdit} style={{fontSize:11,padding:"3px 9px"}}>編集</Btn><Btn onClick={onDelete} style={{fontSize:11,padding:"3px 9px",background:"#3a1a1a",color:"#ef4444"}}>削除</Btn></div>;
-const Badge=({children,bg,color})=><span style={{padding:"2px 7px",background:bg||"#2a2a3a",color:color||"#aaa",borderRadius:4,fontSize:11,fontWeight:600,whiteSpace:"nowrap"}}>{children}</span>;
-const SectionHeader=({title,right})=><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:8}}>{typeof title==="string"?<h3 style={{margin:0,fontSize:14,color:"#aaa"}}>{title}</h3>:title}{right}</div>;
-const Empty=({text})=><div style={{textAlign:"center",color:"#555",padding:"50px 0",fontSize:14}}>{text}</div>;
-
-function filterRows(rows,search,keys){
-  if(!search)return rows;
-  const q=search.toLowerCase();
-  return rows.filter(r=>keys.some(k=>String(r[k]||"").toLowerCase().includes(q)));
+function filterRows(rows, keys){
+  if(!searchQ) return rows;
+  return rows.filter(r => keys.some(k => String(r[k]||'').toLowerCase().includes(searchQ)));
 }
 
-function descItem(type,item){
-  if(!item)return"-";
-  if(type==="wholesalers")return`${item.name}（${item.type}）`;
-  if(type==="deliveries")return`${item.date} ${item.wholesaler}/${item.artist}-${item.title} ${item.format} ${fmt(item.qty)}枚`;
-  if(type==="payments")return`${item.date} ${item.from}/${item.title} ¥${fmt(item.amount)} ${item.status}`;
-  if(type==="inventory")return`${item.artist}/${item.title} ${item.format} 製造${fmt(item.total)}枚`;
-  if(type==="expenses")return`${item.date} ${item.category}/${item.detail} ¥${fmt(item.amount)}`;
-  return JSON.stringify(item);
-}
-
-function exportCSV(data){
-  const sheets={
-    "卸先":data.wholesalers.map(w=>({名前:w.name,種別:w.type,連絡先:w.contact,支払条件:w.terms,地域:w.region})),
-    "卸し履歴":data.deliveries.map(d=>({日付:d.date,卸先:d.wholesaler,アーティスト:d.artist,タイトル:d.title,形態:d.format,枚数:d.qty,単価:d.unitPrice,合計:d.qty*d.unitPrice,入金:d.paid?"済":"未"})),
-    "入金売上":data.payments.map(p=>({日付:p.date,入金元:p.from,件名:p.title,金額:p.amount,状態:p.status,期限:p.dueDate||""})),
-    "在庫":data.inventory.map(i=>({アーティスト:i.artist,タイトル:i.title,形態:i.format,製造数:i.total,返品:i.returned,発売日:i.releaseDate||"",バーコード:i.barcode||""})),
-    "経費":data.expenses.map(e=>({日付:e.date,カテゴリ:e.category,内容:e.detail,金額:e.amount,支払:e.paid?"済":"未",アーティスト:e.artist||"",タイトル:e.title||""})),
-  };
-  let out="";
-  Object.entries(sheets).forEach(([n,rows])=>{
-    if(!rows.length)return;
-    out+=`# ${n}\n`+Object.keys(rows[0]).join(",")+"\n"+rows.map(r=>Object.values(r).map(v=>`"${v}"`).join(",")).join("\n")+"\n\n";
+function sortRows(rows, key, numKeys=[]){
+  if(!key) return rows;
+  const dir = sortState[key] || 'asc';
+  return [...rows].sort((a,b)=>{
+    let av=a[key], bv=b[key];
+    if(numKeys.includes(key)){av=Number(av);bv=Number(bv);}
+    if(av==null) return 1; if(bv==null) return -1;
+    const c = typeof av==='number' ? av-bv : String(av).localeCompare(String(bv),'ja');
+    return dir==='asc' ? c : -c;
   });
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob(["\uFEFF"+out],{type:"text/csv;charset=utf-8;"}));
-  a.download=`label_${TODAY}.csv`;a.click();
 }
 
-function App(){
-  const[tab,setTab]=useState(0);
-  const{data,loaded,commit,undo,canUndo,trash,softDelete,restore,emptyTrash,editLog}=useHistory(SEED);
-  const[modal,setModal]=useState(null);
-  const[toast,setToast]=useState(null);
-  const[search,setSearch]=useState("");
-  const showToast=(msg,c)=>{setToast({msg,c:c||"#22c55e"});setTimeout(()=>setToast(null),2500);};
-  const addItem=(type,item)=>{
-    const id=Math.max(0,...data[type].map(x=>x.id))+1;
-    commit(d=>({...d,[type]:[...d[type],{...item,id}]}));
-    showToast("追加しました ✓");
-  };
-  const updateItem=(type,before,after)=>{
-    commit(d=>({...d,[type]:d[type].map(x=>x.id===after.id?after:x)}),{type,before,after});
-    showToast("保存しました ✓");
-  };
-  const deleteItem=(type,id)=>{softDelete(type,id);showToast("ゴミ箱に移動しました","#f59e0b");};
-  const togglePaid=id=>{
-    const b=data.deliveries.find(x=>x.id===id);
-    const a={...b,paid:!b.paid};
-    commit(d=>({...d,deliveries:d.deliveries.map(x=>x.id===id?a:x)}),{type:"deliveries",before:b,after:a});
-  };
-  const exportJSON=()=>{
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
-    a.download=`label_backup_${TODAY}.json`;a.click();
-    showToast("JSONバックアップを保存しました ✓");
-  };
-  const importJSON=()=>{
-    const input=document.createElement("input");
-    input.type="file";input.accept=".json";
-    input.onchange=e=>{
-      const file=e.target.files[0];if(!file)return;
-      const reader=new FileReader();
-      reader.onload=ev=>{
-        try{
-          const imp=JSON.parse(ev.target.result);
-          if(!imp.wholesalers||!imp.inventory)throw new Error();
-          commit(()=>imp);showToast("データを読み込みました ✓");
-        }catch{showToast("JSONファイルが不正です","#ef4444");}
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  };
-  const totalIncome=data.payments.filter(p=>p.status==="入金済").reduce((s,p)=>s+Number(p.amount),0);
-  const pendingIncome=data.payments.filter(p=>p.status!=="入金済").reduce((s,p)=>s+Number(p.amount),0);
-  const totalExpense=data.expenses.reduce((s,e)=>s+Number(e.amount),0);
-  const profit=totalIncome-totalExpense;
-  const totalStock=data.inventory.reduce((s,i)=>{
-    const d=data.deliveries.filter(x=>x.title===i.title&&x.format===i.format).reduce((ss,x)=>ss+Number(x.qty),0);
-    return s+(Number(i.total)-d+Number(i.returned));
-  },0);
-  const overdue=data.payments.filter(p=>p.status!=="入金済"&&p.dueDate&&p.dueDate<TODAY).length;
-  const unpaidExp=data.expenses.filter(e=>!e.paid).length;
-  const badge=i=>{if(i===7&&trash.length>0)return trash.length;if(i===3&&overdue>0)return overdue;if(i===5&&unpaidExp>0)return unpaidExp;return null;};
-  if(!loaded)return(
-    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"#0f0f13",color:"#888",fontSize:14,gap:10,flexDirection:"column"}}>
-      <div style={{width:24,height:24,border:"2px solid #a855f7",borderTopColor:"transparent",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
-      <span>データを読み込み中...</span>
-    </div>
-  );
-  return(
-    <div style={{fontFamily:"sans-serif",background:"#0f0f13",minHeight:"100vh",color:"#e8e8f0"}}>
-      <div style={{background:"#1a1a24",borderBottom:"1px solid #2a2a3a",padding:"11px 18px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-        <div style={{width:32,height:32,borderRadius:"50%",background:"linear-gradient(135deg,#a855f7,#ec4899)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🎵</div>
-        <span style={{fontWeight:700,fontSize:16,letterSpacing:1}}>Label Manager</span>
-        <div style={{flex:1,maxWidth:280,position:"relative"}}>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="全体を検索..." style={{width:"100%",padding:"6px 10px 6px 28px",background:"#0f0f13",border:"1px solid #2a2a3a",borderRadius:8,color:"#e8e8f0",fontSize:12,boxSizing:"border-box"}}/>
-          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"#555",fontSize:12}}>🔍</span>
-        </div>
-        <div style={{marginLeft:"auto",display:"flex",gap:6,flexWrap:"wrap"}}>
-          <Btn onClick={undo} disabled={!canUndo} style={{color:canUndo?"#a855f7":"#444",background:canUndo?"#2a2a3a":"#1a1a24"}}>↩ 元に戻す</Btn>
-          <Btn onClick={()=>exportCSV(data)}>⬇ CSV</Btn>
-          <Btn onClick={exportJSON} style={{color:"#38bdf8"}}>💾 バックアップ</Btn>
-          <Btn onClick={importJSON} style={{color:"#22c55e"}}>📂 復元</Btn>
-        </div>
-      </div>
-      <div style={{display:"flex",gap:1,padding:"10px 18px 0",borderBottom:"1px solid #2a2a3a",background:"#15151f",flexWrap:"wrap"}}>
-        {TABS.map((t,i)=>{
-          const b=badge(i);
-          return<button key={i} onClick={()=>setTab(i)} style={{padding:"7px 13px",border:"none",borderRadius:"6px 6px 0 0",cursor:"pointer",fontSize:12,fontWeight:600,background:tab===i?(i===7?"#b45309":"#a855f7"):"transparent",color:tab===i?"#fff":i===7?"#f59e0b":"#888",transition:"all .15s",position:"relative"}}>
-            {t}{b?<span style={{position:"absolute",top:3,right:2,background:"#ef4444",borderRadius:"50%",width:14,height:14,fontSize:9,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700}}>{b}</span>:null}
-          </button>;
-        })}
-      </div>
-      <div style={{padding:18}}>
-        {tab===0&&<Dashboard data={data} totalIncome={totalIncome} pendingIncome={pendingIncome} totalExpense={totalExpense} profit={profit} totalStock={totalStock} overdue={overdue} onTab={setTab}/>}
-        {tab===1&&<WholesalerTab data={data.wholesalers} deliveries={data.deliveries} onAdd={()=>setModal({t:"ws"})} onEdit={item=>setModal({t:"ws",item})} onDelete={id=>deleteItem("wholesalers",id)} search={search}/>}
-        {tab===2&&<DeliveryTab data={data.deliveries} wholesalers={data.wholesalers} inventory={data.inventory} onAdd={()=>setModal({t:"del"})} onEdit={item=>setModal({t:"del",item})} onDelete={id=>deleteItem("deliveries",id)} togglePaid={togglePaid} search={search}/>}
-        {tab===3&&<PaymentTab data={data.payments} onAdd={()=>setModal({t:"pay"})} onEdit={item=>setModal({t:"pay",item})} onDelete={id=>deleteItem("payments",id)} search={search}/>}
-        {tab===4&&<InventoryTab data={data.inventory} deliveries={data.deliveries} onAdd={()=>setModal({t:"inv"})} onEdit={item=>setModal({t:"inv",item})} onDelete={id=>deleteItem("inventory",id)} search={search}/>}
-        {tab===5&&<ExpenseTab data={data.expenses} onAdd={()=>setModal({t:"exp"})} onEdit={item=>setModal({t:"exp",item})} onDelete={id=>deleteItem("expenses",id)} search={search}/>}
-        {tab===6&&<AnalysisTab data={data}/>}
-        {tab===7&&<TrashTab trash={trash} editLog={editLog} onRestore={id=>{restore(id);showToast("復元しました ✓");}} onDelete={emptyTrash}/>}
-      </div>
-      {modal&&<ModalForm modal={modal} onClose={()=>setModal(null)} data={data} onSave={(type,item,before)=>{before?updateItem(type,before,item):addItem(type,item);setModal(null);}}/>}
-      {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:toast.c,color:"#fff",padding:"9px 22px",borderRadius:10,fontWeight:700,fontSize:13,zIndex:200,boxShadow:"0 4px 18px #0007",whiteSpace:"nowrap"}}>{toast.msg}</div>}
-    </div>
-  );
+function toggleSort(key){
+  sortState[key] = sortState[key]==='asc' ? 'desc' : 'asc';
+  render();
 }
 
-function Dashboard({data,totalIncome,pendingIncome,totalExpense,profit,totalStock,overdue,onTab}){
-  const unpaidDel=data.deliveries.filter(d=>!d.paid);
-  const unpaidAmt=unpaidDel.reduce((s,d)=>s+d.qty*d.unitPrice,0);
-  const expByCat=EXPENSE_CATS.map(c=>({c,v:data.expenses.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.amount),0)})).filter(x=>x.v>0);
-  const maxExp=Math.max(...expByCat.map(x=>x.v),1);
-  const titleQty={};
-  data.deliveries.forEach(d=>{const k=`${d.artist} / ${d.title}`;titleQty[k]=(titleQty[k]||0)+Number(d.qty);});
-  const topTitles=Object.entries(titleQty).sort((a,b)=>b[1]-a[1]).slice(0,4);
-  const lowStock=data.inventory.filter(i=>{
-    const d=data.deliveries.filter(x=>x.title===i.title&&x.format===i.format).reduce((s,x)=>s+Number(x.qty),0);
-    return(Number(i.total)-d+Number(i.returned))<30;
-  });
-  const cards=[
-    {t:"入金済",v:`¥${fmt(totalIncome)}`,sub:"確定売上",c:"#a855f7",tab:3},
-    {t:"未入金",v:`¥${fmt(pendingIncome)}`,sub:overdue>0?`${overdue}件延滞あり`:"請求中",c:overdue>0?"#ef4444":"#f59e0b",tab:3},
-    {t:"卸し未回収",v:`¥${fmt(unpaidAmt)}`,sub:`${unpaidDel.length}件`,c:"#f97316",tab:2},
-    {t:"経費合計",v:`¥${fmt(totalExpense)}`,c:"#ef4444",tab:5},
-    {t:"収支",v:`¥${fmt(profit)}`,sub:profit>=0?"黒字":"赤字",c:profit>=0?"#22c55e":"#ef4444",tab:6},
-    {t:"在庫残数",v:`${fmt(totalStock)}点`,c:"#38bdf8",tab:4},
+function th(label, key, numKeys=[]){
+  const dir = sortState[key];
+  const arrow = dir ? (dir==='asc'?'▲':'▼') : '⇅';
+  const active = dir ? 'active-sort' : '';
+  return `<th class="${active}" onclick="toggleSort('${key}')">${label}<span style="margin-left:3px;font-size:9px;opacity:${dir?1:0.3}">${arrow}</span></th>`;
+}
+
+function badge(text, bg, color){
+  return `<span class="badge" style="background:${bg};color:${color}">${text}</span>`;
+}
+
+function showToast(msg, color='#22c55e'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color; t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 2500);
+}
+
+function nextId(arr){ return arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1; }
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function renderTabs(){
+  const overdue = state.payments.filter(p=>p.status!=='入金済'&&p.dueDate&&p.dueDate<TODAY).length;
+  const unpaidExp = state.expenses.filter(e=>!e.paid).length;
+  const badges = {3:overdue, 5:unpaidExp, 7:trash.length};
+  document.getElementById('tabs').innerHTML = TAB_NAMES.map((name,i)=>{
+    const b = badges[i]||0;
+    const isTrash = i===7;
+    const active = currentTab===i ? 'active' : '';
+    const tc = isTrash ? 'trash-tab' : '';
+    return `<button class="tab-btn ${active} ${tc}" onclick="setTab(${i})">${name}${b>0?`<span class="tab-badge">${b}</span>`:''}</button>`;
+  }).join('');
+}
+
+function setTab(i){ currentTab=i; render(); }
+
+// ═══════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════
+function getStats(){
+  const totalIncome = state.payments.filter(p=>p.status==='入金済').reduce((s,p)=>s+Number(p.amount),0);
+  const pendingIncome = state.payments.filter(p=>p.status!=='入金済').reduce((s,p)=>s+Number(p.amount),0);
+  const totalExpense = state.expenses.reduce((s,e)=>s+Number(e.amount),0);
+  const profit = totalIncome - totalExpense;
+  const totalStock = state.inventory.reduce((s,i)=>s+Math.max(0,calcStock(i)),0);
+  const overdue = state.payments.filter(p=>p.status!=='入金済'&&p.dueDate&&p.dueDate<TODAY).length;
+  const unpaidDel = state.deliveries.filter(d=>!d.paid);
+  const unpaidDelAmt = unpaidDel.reduce((s,d)=>s+d.qty*d.unitPrice,0);
+  return {totalIncome,pendingIncome,totalExpense,profit,totalStock,overdue,unpaidDel,unpaidDelAmt};
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function render(){
+  renderTabs();
+  const content = document.getElementById('content');
+  switch(currentTab){
+    case 0: content.innerHTML = renderDashboard(); break;
+    case 1: content.innerHTML = renderWholesalers(); break;
+    case 2: content.innerHTML = renderDeliveries(); break;
+    case 3: content.innerHTML = renderPayments(); break;
+    case 4: content.innerHTML = renderInventory(); break;
+    case 5: content.innerHTML = renderExpenses(); break;
+    case 6: content.innerHTML = renderAnalysis(); break;
+    case 7: content.innerHTML = renderTrash(); break;
+  }
+}
+
+// ── DASHBOARD ──────────────────────────────────────────
+function renderDashboard(){
+  const {totalIncome,pendingIncome,totalExpense,profit,totalStock,overdue,unpaidDel,unpaidDelAmt} = getStats();
+  const cards = [
+    {l:'入金済',v:`¥${fmt(totalIncome)}`,sub:'確定売上',c:'#a855f7',tab:3},
+    {l:'未入金',v:`¥${fmt(pendingIncome)}`,sub:overdue>0?`${overdue}件延滞`:'請求中',c:overdue>0?'#ef4444':'#f59e0b',tab:3},
+    {l:'卸し未回収',v:`¥${fmt(unpaidDelAmt)}`,sub:`${unpaidDel.length}件`,c:'#f97316',tab:2},
+    {l:'経費合計',v:`¥${fmt(totalExpense)}`,sub:'',c:'#ef4444',tab:5},
+    {l:'収支',v:`¥${fmt(profit)}`,sub:profit>=0?'黒字':'赤字',c:profit>=0?'#22c55e':'#ef4444',tab:6},
+    {l:'在庫残数',v:`${fmt(totalStock)}点`,sub:'',c:'#38bdf8',tab:4},
   ];
-  return(
-    <div>
-      <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
-        {cards.map(({t,v,sub,c,tab})=>(
-          <div key={t} onClick={()=>onTab(tab)} style={{background:"#1a1a24",border:`1px solid ${c}30`,borderRadius:10,padding:"14px 18px",flex:1,minWidth:110,cursor:"pointer"}}>
-            <div style={{fontSize:10,color:"#777",marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>{t}</div>
-            <div style={{fontSize:18,fontWeight:700,color:c}}>{v}</div>
-            {sub&&<div style={{fontSize:10,color:"#666",marginTop:2}}>{sub}</div>}
-          </div>
-        ))}
+  const kpiHtml = cards.map(c=>`
+    <div class="kpi-card" style="border-color:${c.c}30" onclick="setTab(${c.tab})">
+      <div class="kpi-label">${c.l}</div>
+      <div class="kpi-value" style="color:${c.c}">${c.v}</div>
+      ${c.sub?`<div class="kpi-sub">${c.sub}</div>`:''}
+    </div>`).join('');
+
+  // 経費内訳
+  const expByCat = EXPENSE_CATS.map(c=>({c,v:state.expenses.filter(e=>e.category===c).reduce((s,e)=>s+Number(e.amount),0)})).filter(x=>x.v>0);
+  const maxExp = Math.max(...expByCat.map(x=>x.v),1);
+  const expHtml = expByCat.map(({c,v})=>`
+    <div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${c}</span><span style="color:#ef4444">¥${fmt(v)}</span></div>
+      <div style="background:#2a2a3a;border-radius:3px;height:4px"><div style="width:${(v/maxExp)*100}%;background:linear-gradient(90deg,#ef4444,#f97316);border-radius:3px;height:4px"></div></div>
+    </div>`).join('');
+
+  // 卸しTop
+  const tq = {};
+  state.deliveries.forEach(d=>{const k=`${d.artist} / ${d.title}`;tq[k]=(tq[k]||0)+Number(d.qty);});
+  const topHtml = Object.entries(tq).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([t,q],i)=>`
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
+      <span style="color:#555;font-weight:700;width:14px;font-size:11px">${i+1}</span>
+      <div style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t}</div>
+      <span style="color:#a855f7;font-weight:700;font-size:11px">${fmt(q)}枚</span>
+    </div>`).join('');
+
+  // 在庫残少
+  const lowStock = state.inventory.filter(i=>calcStock(i)<30);
+  const lowHtml = lowStock.length===0
+    ? '<div style="color:#555;font-size:11px">残少なし</div>'
+    : lowStock.map(i=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3a;font-size:11px">
+        <div><div style="font-weight:600">${i.artist}</div><div style="color:#666">${i.title}/${i.format}</div></div>
+        <span style="color:#ef4444;font-weight:700">${fmt(calcStock(i))}点</span>
+      </div>`).join('');
+
+  // 未回収
+  const urHtml = unpaidDel.length===0
+    ? '<div style="color:#555;font-size:11px">未回収なし</div>'
+    : unpaidDel.slice(0,4).map(d=>`
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2a2a3a;font-size:11px">
+        <div><div style="font-weight:600">${d.wholesaler}</div><div style="color:#666">${d.date}・${d.qty}枚</div></div>
+        <span style="color:#f97316;font-weight:700">¥${fmt(d.qty*d.unitPrice)}</span>
+      </div>`).join('');
+
+  return `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">${kpiHtml}</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="card" style="flex:1;min-width:180px"><h4 style="margin:0 0 10px;font-size:11px;color:#888;text-transform:uppercase">経費内訳</h4>${expHtml}</div>
+      <div class="card" style="flex:1;min-width:180px"><h4 style="margin:0 0 10px;font-size:11px;color:#888;text-transform:uppercase">卸し Top</h4>${topHtml}</div>
+      <div class="card" style="flex:1;min-width:180px;border-color:${lowStock.length?'#f9731633':'#2a2a3a'}"><h4 style="margin:0 0 10px;font-size:11px;color:${lowStock.length?'#f97316':'#888'};text-transform:uppercase">⚠ 在庫残少</h4>${lowHtml}</div>
+      <div class="card" style="flex:1;min-width:180px;border-color:${unpaidDel.length?'#f9731633':'#2a2a3a'}"><h4 style="margin:0 0 10px;font-size:11px;color:#f97316;text-transform:uppercase">卸し未回収</h4>${urHtml}</div>
+    </div>`;
+}
+
+// ── WHOLESALERS ────────────────────────────────────────
+function renderWholesalers(){
+  let rows = sortRows(filterRows(state.wholesalers,['name','type','region','contact']), 'name');
+  const tbody = rows.map(w=>{
+    const wd = state.deliveries.filter(d=>d.wholesaler===w.name);
+    const qty = wd.reduce((s,d)=>s+Number(d.qty),0);
+    const ua = wd.filter(d=>!d.paid).reduce((s,d)=>s+d.qty*d.unitPrice,0);
+    return `<tr>
+      <td><b>${w.name}</b></td>
+      <td>${badge(w.type,'#2a2a3a','#aaa')}</td>
+      <td style="color:#888">${w.region}</td>
+      <td style="color:#888;font-size:11px">${w.contact}</td>
+      <td>${w.terms}</td>
+      <td style="color:#38bdf8;font-weight:700">${fmt(qty)}枚</td>
+      <td style="color:${ua>0?'#f97316':'#22c55e'};font-weight:700">${ua>0?'¥'+fmt(ua):'なし'}</td>
+      <td><button class="btn btn-sm" onclick="openModal('ws',${w.id})">編集</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('wholesalers',${w.id})">削除</button></td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="section-header"><h3 style="font-size:13px;color:#aaa">卸先・流通（${rows.length}件）</h3><button class="btn btn-primary" onclick="openModal('ws')">＋ 追加</button></div>
+    <div class="tbl-wrap"><table><thead><tr>${th('卸先名','name')}${th('種別','type')}${th('地域','region')}${th('連絡先','contact')}${th('支払条件','terms')}<th>総卸し枚数</th><th>未回収</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
+}
+
+// ── DELIVERIES ─────────────────────────────────────────
+function renderDeliveries(){
+  let rows = state.deliveries;
+  if(deliveryFilter==='未入金') rows=rows.filter(d=>!d.paid);
+  else if(deliveryFilter==='入金済') rows=rows.filter(d=>d.paid);
+  rows = sortRows(filterRows(rows,['wholesaler','artist','title','format']), 'date', ['qty','unitPrice']);
+  if(!sortState['date']) rows = rows.reverse();
+  const tq = rows.reduce((s,d)=>s+Number(d.qty),0);
+  const ta = rows.reduce((s,d)=>s+d.qty*d.unitPrice,0);
+  const filterBtns = ['すべて','未入金','入金済'].map(f=>`<button class="filter-btn ${deliveryFilter===f?'active':''}" onclick="setDeliveryFilter('${f}')">${f}</button>`).join('');
+  const tbody = rows.map(d=>`
+    <tr style="opacity:${d.paid?.75:1}">
+      <td><button class="check-btn ${d.paid?'checked':''}" onclick="togglePaid(${d.id})">${d.paid?'✓':''}</button></td>
+      <td style="color:#888;white-space:nowrap">${d.date}</td>
+      <td style="font-weight:600">${d.wholesaler}</td>
+      <td style="color:#ccc">${d.artist}</td>
+      <td>${d.title}</td>
+      <td>${badge(d.format,'#1e2a3a','#38bdf8')}</td>
+      <td style="font-weight:700">${fmt(d.qty)}枚</td>
+      <td style="color:#888">¥${fmt(d.unitPrice)}</td>
+      <td style="font-weight:700;color:${d.paid?'#22c55e':'#f97316'}">¥${fmt(d.qty*d.unitPrice)}</td>
+      <td><button class="btn btn-sm" onclick="openModal('del',${d.id})">編集</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('deliveries',${d.id})">削除</button></td>
+    </tr>`).join('');
+  return `
+    <div class="section-header">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:13px;color:#aaa;font-weight:600">卸し履歴</span>
+        <span style="font-size:11px;color:#38bdf8">${tq}枚</span>
+        <span style="font-size:11px;color:#a855f7">¥${fmt(ta)}</span>
+        <span style="font-size:10px;color:#555">✅ チェックで入金・売上に自動反映</span>
       </div>
-      <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-        <div style={{flex:1,minWidth:200,background:"#1a1a24",borderRadius:10,padding:16,border:"1px solid #2a2a3a"}}>
-          <h4 style={{margin:"0 0 12px",fontSize:12,color:"#888",textTransform:"uppercase",letterSpacing:.5}}>経費内訳</h4>
-          {expByCat.map(({c,v})=>(
-            <div key={c} style={{marginBottom:8}}>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}><span>{c}</span><span style={{color:"#ef4444"}}>¥{fmt(v)}</span></div>
-              <div style={{background:"#2a2a3a",borderRadius:3,height:4}}><div style={{width:`${(v/maxExp)*100}%`,background:"linear-gradient(90deg,#ef4444,#f97316)",borderRadius:3,height:4}}/></div>
-            </div>
-          ))}
-        </div>
-        <div style={{flex:1,minWidth:200,background:"#1a1a24",borderRadius:10,padding:16,border:"1px solid #2a2a3a"}}>
-          <h4 style={{margin:"0 0 12px",fontSize:12,color:"#888",textTransform:"uppercase",letterSpacing:.5}}>卸し Top</h4>
-          {topTitles.map(([title,qty],i)=>(
-            <div key={title} style={{display:"flex",alignItems:"center",gap:8,marginBottom:9}}>
-              <span style={{color:"#555",fontWeight:700,width:16,fontSize:12,flexShrink:0}}>{i+1}</span>
-              <div style={{flex:1,fontSize:12,color:"#ccc",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{title}</div>
-              <span style={{color:"#a855f7",fontWeight:700,fontSize:12,flexShrink:0}}>{fmt(qty)}枚</span>
-            </div>
-          ))}
-        </div>
-        <div style={{flex:1,minWidth:200,background:"#1a1a24",borderRadius:10,padding:16,border:`1px solid ${lowStock.length?"#f9731633":"#2a2a3a"}`}}>
-          <h4 style={{margin:"0 0 12px",fontSize:12,color:lowStock.length?"#f97316":"#888",textTransform:"uppercase",letterSpacing:.5}}>⚠ 在庫残少</h4>
-          {lowStock.length===0?<div style={{color:"#555",fontSize:12}}>残少なし</div>:lowStock.map(i=>{
-            const d=data.deliveries.filter(x=>x.title===i.title&&x.format===i.format).reduce((s,x)=>s+Number(x.qty),0);
-            const r=Number(i.total)-d+Number(i.returned);
-            return<div key={i.id} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #2a2a3a",fontSize:12}}><div><div style={{fontWeight:600}}>{i.artist}</div><div style={{fontSize:11,color:"#666"}}>{i.title}/{i.format}</div></div><span style={{color:"#ef4444",fontWeight:700}}>{fmt(r)}点</span></div>;
-          })}
-        </div>
-        <div style={{flex:1,minWidth:200,background:"#1a1a24",borderRadius:10,padding:16,border:`1px solid ${unpaidDel.length?"#f9731633":"#2a2a3a"}`}}>
-          <h4 style={{margin:"0 0 12px",fontSize:12,color:"#f97316",textTransform:"uppercase",letterSpacing:.5}}>卸し未回収</h4>
-          {unpaidDel.length===0?<div style={{color:"#555",fontSize:12}}>未回収なし</div>:unpaidDel.slice(0,4).map(d=>(
-            <div key={d.id} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #2a2a3a",fontSize:12}}>
-              <div><div style={{fontWeight:600}}>{d.wholesaler}</div><div style={{fontSize:11,color:"#666"}}>{d.date}・{d.qty}枚</div></div>
-              <span style={{color:"#f97316",fontWeight:700}}>¥{fmt(d.qty*d.unitPrice)}</span>
-            </div>
-          ))}
-        </div>
+      <div style="display:flex;gap:5px">${filterBtns}<button class="btn btn-primary" onclick="openModal('del')">＋ 追加</button></div>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>入金</th>${th('卸し日','date')}${th('卸先','wholesaler')}${th('アーティスト','artist')}${th('タイトル','title')}${th('形態','format')}${th('枚数','qty',['qty'])}${th('単価','unitPrice',['unitPrice'])}<th>合計</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
+}
+
+function setDeliveryFilter(f){ deliveryFilter=f; render(); }
+
+// ── PAYMENTS ───────────────────────────────────────────
+function renderPayments(){
+  let rows = sortRows(filterRows(state.payments,['from','title','status']), 'date', ['amount']);
+  if(!sortState['date_pay']) rows = rows.reverse();
+  const paid = rows.filter(p=>p.status==='入金済').reduce((s,p)=>s+Number(p.amount),0);
+  const total = rows.reduce((s,p)=>s+Number(p.amount),0);
+  const tbody = rows.map(p=>{
+    const ov = p.status!=='入金済'&&p.dueDate&&p.dueDate<TODAY;
+    const isAuto = !!p.sourceDeliveryId;
+    const stBg = p.status==='入金済'?'#14532d':p.status==='未入金'?'#431407':'#422006';
+    const stFg = p.status==='入金済'?'#22c55e':p.status==='未入金'?'#f97316':'#fbbf24';
+    const actionHtml = isAuto
+      ? `<span style="font-size:10px;color:#555">自動生成</span>`
+      : `<button class="btn btn-sm" onclick="openModal('pay',${p.id})">編集</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('payments',${p.id})">削除</button>`;
+    return `<tr style="background:${ov?'#1a0f0f':'transparent'}">
+      <td style="color:#888;white-space:nowrap">${p.date}</td>
+      <td style="font-weight:600">${p.from}</td>
+      <td>${p.title}</td>
+      <td style="font-weight:700;color:#a855f7">¥${fmt(p.amount)}</td>
+      <td>${badge(p.status,stBg,stFg)}</td>
+      <td style="color:${ov?'#ef4444':'#888'};font-weight:${ov?700:400}">${p.dueDate||'-'}${ov?' ⚠':''}</td>
+      <td>${badge(isAuto?'自動':'手動',isAuto?'#1a2a1a':'#1e1e2a',isAuto?'#22c55e':'#555')}</td>
+      <td>${actionHtml}</td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="section-header">
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600">入金・売上</span>
+        <span style="font-size:11px;color:#22c55e">入金済 ¥${fmt(paid)}</span>
+        <span style="font-size:11px;color:#888">合計 ¥${fmt(total)}</span>
       </div>
+      <button class="btn btn-primary" onclick="openModal('pay')">＋ 追加</button>
     </div>
-  );
+    <div class="tbl-wrap"><table><thead><tr>${th('日付','date')}${th('入金元','from')}${th('件名','title')}${th('金額','amount',['amount'])}${th('ステータス','status')}<th>入金期限</th><th>種別</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-function WholesalerTab({data,deliveries,onAdd,onEdit,onDelete,search}){
-  const{apply,SortTh}=useSort("name");
-  const rows=apply(filterRows(data,search,["name","type","region","contact"]));
-  return(
-    <div>
-      <SectionHeader title={`卸先・流通（${rows.length}件）`} right={<AddBtn onClick={onAdd}/>}/>
-      <Tbl><thead><tr><SortTh k="name">卸先名</SortTh><SortTh k="type">種別</SortTh><SortTh k="region">地域</SortTh><SortTh k="contact">連絡先</SortTh><SortTh k="terms">支払条件</SortTh><Th>総卸し枚数</Th><Th>未回収</Th><Th></Th></tr></thead>
-        <tbody>{rows.map(w=>{
-          const wdel=deliveries.filter(d=>d.wholesaler===w.name);
-          const qty=wdel.reduce((s,d)=>s+Number(d.qty),0);
-          const ua=wdel.filter(d=>!d.paid).reduce((s,d)=>s+d.qty*d.unitPrice,0);
-          return<tr key={w.id}><Td><b>{w.name}</b></Td><Td><Badge>{w.type}</Badge></Td><Td style={{color:"#888"}}>{w.region}</Td><Td style={{color:"#888",fontSize:12}}>{w.contact}</Td><Td>{w.terms}</Td><Td style={{color:"#38bdf8",fontWeight:700}}>{fmt(qty)}枚</Td><Td style={{color:ua>0?"#f97316":"#22c55e",fontWeight:700}}>{ua>0?`¥${fmt(ua)}`:"なし"}</Td><Td><ActBtns onEdit={()=>onEdit(w)} onDelete={()=>onDelete(w.id)}/></Td></tr>;
-        })}</tbody>
-      </Tbl>
-    </div>
-  );
+// ── INVENTORY ──────────────────────────────────────────
+function renderInventory(){
+  let rows = sortRows(filterRows(state.inventory,['artist','title','format','barcode']), 'artist');
+  const tbody = rows.map(i=>{
+    const dq = state.deliveries.filter(d=>d.artist===i.artist&&d.title===i.title&&d.format===i.format).reduce((s,d)=>s+Number(d.qty),0);
+    const rem = calcStock(i);
+    const rate = i.total>0?Math.round(((dq-Number(i.returned))/Number(i.total))*100):0;
+    const low = rem<30;
+    return `<tr style="background:${low?'#1a0d00':'transparent'}">
+      <td style="font-weight:700;color:#ccc">${i.artist}</td>
+      <td style="font-weight:600">${i.title}</td>
+      <td>${badge(i.format,'#1e2a3a','#38bdf8')}</td>
+      <td style="color:#888;white-space:nowrap">${i.releaseDate||'-'}</td>
+      <td>${fmt(i.total)}</td>
+      <td style="color:#a855f7;font-weight:600">${fmt(dq)}</td>
+      <td style="color:#f59e0b">${fmt(i.returned)}</td>
+      <td style="font-weight:700;color:${low?'#ef4444':'#22c55e'}">${fmt(rem)}${low?' ⚠':''}</td>
+      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(rate,100)}%;background:${rate>80?'#ef4444':'#a855f7'}"></div></div><span style="font-size:10px;color:#888">${rate}%</span></div></td>
+      <td style="color:#555;font-size:10px">${i.barcode||'-'}</td>
+      <td><button class="btn btn-sm" onclick="openModal('inv',${i.id})">編集</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('inventory',${i.id})">削除</button></td>
+    </tr>`;
+  }).join('');
+  return `
+    <div class="section-header"><h3 style="font-size:13px;color:#aaa">在庫・残数（${rows.length}件）</h3><button class="btn btn-primary" onclick="openModal('inv')">＋ 追加</button></div>
+    <div class="tbl-wrap"><table><thead><tr>${th('アーティスト','artist')}${th('タイトル','title')}${th('形態','format')}${th('発売日','releaseDate')}<th>製造数</th><th>卸し数</th><th>返品</th><th>在庫残</th><th>消化率</th><th>バーコード</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-function DeliveryTab({data,wholesalers,inventory,onAdd,onEdit,onDelete,togglePaid,search}){
-  const[flt,setFlt]=useState("すべて");
-  const{apply,SortTh}=useSort("date","desc");
-  const base=flt==="すべて"?data:flt==="未入金"?data.filter(d=>!d.paid):data.filter(d=>d.paid);
-  const rows=apply(filterRows(base,search,["wholesaler","artist","title","format"]),["qty","unitPrice"]);
-  const tq=rows.reduce((s,d)=>s+Number(d.qty),0);
-  const ta=rows.reduce((s,d)=>s+d.qty*d.unitPrice,0);
-  return(
-    <div>
-      <SectionHeader
-        title={<div style={{display:"flex",gap:12,alignItems:"center"}}><span style={{fontSize:14,color:"#aaa",fontWeight:600}}>卸し履歴</span><span style={{fontSize:12,color:"#38bdf8"}}>{tq}枚</span><span style={{fontSize:12,color:"#a855f7"}}>¥{fmt(ta)}</span></div>}
-        right={<div style={{display:"flex",gap:6}}>{["すべて","未入金","入金済"].map(f=><button key={f} onClick={()=>setFlt(f)} style={{padding:"4px 12px",border:"none",borderRadius:6,cursor:"pointer",fontSize:11,fontWeight:600,background:flt===f?"#a855f7":"#2a2a3a",color:flt===f?"#fff":"#888"}}>{f}</button>)}<AddBtn onClick={onAdd}/></div>}
-      />
-      <Tbl><thead><tr><SortTh k="paid">入金</SortTh><SortTh k="date">卸し日</SortTh><SortTh k="wholesaler">卸先</SortTh><SortTh k="artist">アーティスト</SortTh><SortTh k="title">タイトル</SortTh><SortTh k="format">形態</SortTh><SortTh k="qty">枚数</SortTh><SortTh k="unitPrice">単価</SortTh><Th>合計</Th><Th></Th></tr></thead>
-        <tbody>{rows.map(d=>(
-          <tr key={d.id} style={{opacity:d.paid?.75:1}}>
-            <Td><button onClick={()=>togglePaid(d.id)} style={{width:24,height:24,borderRadius:5,border:`2px solid ${d.paid?"#22c55e":"#3a3a4a"}`,background:d.paid?"#14532d":"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#22c55e",fontSize:12}}>{d.paid?"✓":""}</button></Td>
-            <Td style={{color:"#888",whiteSpace:"nowrap"}}>{d.date}</Td>
-            <Td style={{fontWeight:600}}>{d.wholesaler}</Td>
-            <Td style={{color:"#ccc"}}>{d.artist}</Td>
-            <Td>{d.title}</Td>
-            <Td><Badge bg="#1e2a3a" color="#38bdf8">{d.format}</Badge></Td>
-            <Td style={{fontWeight:700}}>{fmt(d.qty)}枚</Td>
-            <Td style={{color:"#888"}}>¥{fmt(d.unitPrice)}</Td>
-            <Td style={{fontWeight:700,color:d.paid?"#22c55e":"#f97316"}}>¥{fmt(d.qty*d.unitPrice)}</Td>
-            <Td><ActBtns onEdit={()=>onEdit(d)} onDelete={()=>onDelete(d.id)}/></Td>
-          </tr>
-        ))}</tbody>
-      </Tbl>
+// ── EXPENSES ───────────────────────────────────────────
+function renderExpenses(){
+  let rows = sortRows(filterRows(state.expenses,['category','detail','artist','title']), 'date', ['amount']);
+  if(!sortState['date']) rows = rows.reverse();
+  const total = rows.reduce((s,e)=>s+Number(e.amount),0);
+  const unpaid = rows.filter(e=>!e.paid).reduce((s,e)=>s+Number(e.amount),0);
+  const tbody = rows.map(e=>`
+    <tr>
+      <td style="color:#888;white-space:nowrap">${e.date}</td>
+      <td>${badge(e.category,'#2a1a1a','#ef4444')}</td>
+      <td>${e.detail}</td>
+      <td style="font-weight:700;color:#ef4444">¥${fmt(e.amount)}</td>
+      <td>${badge(e.paid?'支払済':'未払',e.paid?'#14532d':'#431407',e.paid?'#22c55e':'#f97316')}</td>
+      <td style="color:#ccc">${e.artist||'<span style="color:#444">—</span>'}</td>
+      <td style="color:#aaa">${e.title||'<span style="color:#444">—</span>'}</td>
+      <td><button class="btn btn-sm" onclick="openModal('exp',${e.id})">編集</button> <button class="btn btn-sm btn-danger" onclick="deleteItem('expenses',${e.id})">削除</button></td>
+    </tr>`).join('');
+  return `
+    <div class="section-header">
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600">諸経費</span>
+        <span style="font-size:11px;color:#ef4444">合計 ¥${fmt(total)}</span>
+        ${unpaid>0?`<span style="font-size:11px;color:#f59e0b">未払 ¥${fmt(unpaid)}</span>`:''}
+      </div>
+      <button class="btn btn-primary" onclick="openModal('exp')">＋ 追加</button>
     </div>
-  );
+    <div class="tbl-wrap"><table><thead><tr>${th('日付','date')}${th('カテゴリ','category')}${th('内容','detail')}${th('金額','amount',['amount'])}<th>支払</th><th>アーティスト</th><th>作品</th><th></th></tr></thead><tbody>${tbody}</tbody></table></div>`;
 }
 
-function PaymentTab({data,onAdd,onEdit,onDelete,search}){
-  const{apply,SortTh}=useSort("date","desc");
-  const rows=apply(filterRows(data,search,["from","title","status"]),["amount"]);
-  const paid=rows.filter(p=>p.status==="入金済").reduce((s,p)=>s+Number(p.amount),0);
-  const total=rows.reduce((s,p)=>s+Number(p.amount),0);
-  return(
-    <div>
-      <SectionHeader
-        title={<div style={{display:"flex",gap:12,alignItems:"center"}}><span style={{fontSize:14,color:"#aaa",fontWeight:600}}>入金・売上</span><span style={{fontSize:12,color:"#22c55e"}}>入金済 ¥{fmt(paid)}</span><span style={{fontSize:12,color:"#888"}}>合計 ¥{fmt(total)}</span></div>}
-        right={<AddBtn onClick={onAdd}/>}
-      />
-      <Tbl><thead><tr><SortTh k="date">日付</SortTh><SortTh k="from">入金元</SortTh><SortTh k="title">件名</SortTh><SortTh k="amount">金額</SortTh><SortTh k="status">ステータス</SortTh><SortTh k="dueDate">入金期限</SortTh><Th></Th></tr></thead>
-        <tbody>{rows.map(p=>{
-          const ov=p.status!=="入金済"&&p.dueDate&&p.dueDate<TODAY;
-          return<tr key={p.id} style={{background:ov?"#1a0f0f":"transparent"}}>
-            <Td style={{color:"#888",whiteSpace:"nowrap"}}>{p.date}</Td>
-            <Td style={{fontWeight:600}}>{p.from}</Td>
-            <Td>{p.title}</Td>
-            <Td style={{fontWeight:700,color:"#a855f7"}}>¥{fmt(p.amount)}</Td>
-            <Td><Badge bg={p.status==="入金済"?"#14532d":p.status==="未入金"?"#431407":"#422006"} color={p.status==="入金済"?"#22c55e":p.status==="未入金"?"#f97316":"#fbbf24"}>{p.status}</Badge></Td>
-            <Td style={{color:ov?"#ef4444":"#888",fontWeight:ov?700:400}}>{p.dueDate||"-"}{ov?" ⚠":""}</Td>
-            <Td><ActBtns onEdit={()=>onEdit(p)} onDelete={()=>onDelete(p.id)}/></Td>
-          </tr>;
-        })}</tbody>
-      </Tbl>
-    </div>
-  );
-}
+// ── ANALYSIS ───────────────────────────────────────────
+let analysisView = 'title';
+function setAnalysisView(v){ analysisView=v; render(); }
 
-function InventoryTab({data,deliveries,onAdd,onEdit,onDelete,search}){
-  const{apply,SortTh}=useSort("artist");
-  const rows=apply(filterRows(data,search,["artist","title","format","barcode"]),["total","returned"]);
-  return(
-    <div>
-      <SectionHeader title={`在庫・残数（${rows.length}件）`} right={<AddBtn onClick={onAdd}/>}/>
-      <Tbl><thead><tr><SortTh k="artist">アーティスト</SortTh><SortTh k="title">タイトル</SortTh><SortTh k="format">形態</SortTh><SortTh k="releaseDate">発売日</SortTh><SortTh k="total">製造数</SortTh><Th>卸し数</Th><SortTh k="returned">返品</SortTh><Th>在庫残</Th><Th>消化率</Th><SortTh k="barcode">バーコード</SortTh><Th></Th></tr></thead>
-        <tbody>{rows.map(i=>{
-          const dq=deliveries.filter(d=>d.title===i.title&&d.format===i.format).reduce((s,d)=>s+Number(d.qty),0);
-          const rem=Number(i.total)-dq+Number(i.returned);
-          const rate=i.total>0?Math.round(((dq-Number(i.returned))/Number(i.total))*100):0;
-          const low=rem<30;
-          return<tr key={i.id} style={{background:low?"#1a0d00":"transparent"}}>
-            <Td style={{fontWeight:700,color:"#ccc"}}>{i.artist}</Td>
-            <Td style={{fontWeight:600}}>{i.title}</Td>
-            <Td><Badge bg="#1e2a3a" color="#38bdf8">{i.format}</Badge></Td>
-            <Td style={{color:"#888",whiteSpace:"nowrap"}}>{i.releaseDate||"-"}</Td>
-            <Td>{fmt(i.total)}</Td>
-            <Td style={{color:"#a855f7",fontWeight:600}}>{fmt(dq)}</Td>
-            <Td style={{color:"#f59e0b"}}>{fmt(i.returned)}</Td>
-            <Td style={{fontWeight:700,color:low?"#ef4444":"#22c55e"}}>{fmt(rem)}{low?" ⚠":""}</Td>
-            <Td><div style={{display:"flex",alignItems:"center",gap:5}}><div style={{background:"#2a2a3a",borderRadius:3,height:4,width:50}}><div style={{width:`${Math.min(rate,100)}%`,background:rate>80?"#ef4444":"#a855f7",borderRadius:3,height:4}}/></div><span style={{fontSize:11,color:"#888"}}>{rate}%</span></div></Td>
-            <Td style={{color:"#555",fontSize:11}}>{i.barcode||"-"}</Td>
-            <Td><ActBtns onEdit={()=>onEdit(i)} onDelete={()=>onDelete(i.id)}/></Td>
-          </tr>;
-        })}</tbody>
-      </Tbl>
-    </div>
-  );
-}
-
-function ExpenseTab({data,onAdd,onEdit,onDelete,search}){
-  const{apply,SortTh}=useSort("date","desc");
-  const rows=apply(filterRows(data,search,["category","detail","artist","title"]),["amount"]);
-  const total=rows.reduce((s,e)=>s+Number(e.amount),0);
-  const unpaid=rows.filter(e=>!e.paid).reduce((s,e)=>s+Number(e.amount),0);
-  return(
-    <div>
-      <SectionHeader
-        title={<div style={{display:"flex",gap:12,alignItems:"center"}}><span style={{fontSize:14,color:"#aaa",fontWeight:600}}>諸経費</span><span style={{fontSize:12,color:"#ef4444"}}>合計 ¥{fmt(total)}</span>{unpaid>0&&<span style={{fontSize:12,color:"#f59e0b"}}>未払 ¥{fmt(unpaid)}</span>}</div>}
-        right={<AddBtn onClick={onAdd}/>}
-      />
-      <Tbl><thead><tr><SortTh k="date">日付</SortTh><SortTh k="category">カテゴリ</SortTh><SortTh k="detail">内容</SortTh><SortTh k="amount">金額</SortTh><SortTh k="paid">支払</SortTh><SortTh k="artist">アーティスト</SortTh><SortTh k="title">作品</SortTh><Th></Th></tr></thead>
-        <tbody>{rows.map(e=>(
-          <tr key={e.id}>
-            <Td style={{color:"#888",whiteSpace:"nowrap"}}>{e.date}</Td>
-            <Td><Badge bg="#2a1a1a" color="#ef4444">{e.category}</Badge></Td>
-            <Td>{e.detail}</Td>
-            <Td style={{fontWeight:700,color:"#ef4444"}}>¥{fmt(e.amount)}</Td>
-            <Td><Badge bg={e.paid?"#14532d":"#431407"} color={e.paid?"#22c55e":"#f97316"}>{e.paid?"支払済":"未払"}</Badge></Td>
-            <Td style={{color:"#ccc"}}>{e.artist||<span style={{color:"#444"}}>—</span>}</Td>
-            <Td style={{color:"#aaa"}}>{e.title||<span style={{color:"#444"}}>—</span>}</Td>
-            <Td><ActBtns onEdit={()=>onEdit(e)} onDelete={()=>onDelete(e.id)}/></Td>
-          </tr>
-        ))}</tbody>
-      </Tbl>
-    </div>
-  );
-}
-
-function AnalysisTab({data}){
-  const[view,setView]=useState("title");
-  const artists=[];
-  data.inventory.forEach(i=>{if(i.artist&&!artists.includes(i.artist))artists.push(i.artist);});
-  const titleKeys=[];
-  data.inventory.forEach(i=>{
+function renderAnalysis(){
+  const titleKeys = [];
+  state.inventory.forEach(i=>{
     const k=`${i.artist}__${i.title}`;
-    if(!titleKeys.find(x=>x.k===k))titleKeys.push({k,artist:i.artist,title:i.title});
+    if(!titleKeys.find(x=>x.k===k)) titleKeys.push({k,artist:i.artist,title:i.title});
   });
-  const byTitle=titleKeys.map(({k,artist,title})=>{
-    const delPaid=data.deliveries.filter(d=>d.paid&&d.title===title&&d.artist===artist).reduce((s,d)=>s+d.qty*d.unitPrice,0);
-    const delAmt=data.deliveries.filter(d=>d.title===title&&d.artist===artist).reduce((s,d)=>s+d.qty*d.unitPrice,0);
-    const delQty=data.deliveries.filter(d=>d.title===title&&d.artist===artist).reduce((s,d)=>s+Number(d.qty),0);
-    const expense=data.expenses.filter(e=>e.title===title&&e.artist===artist).reduce((s,e)=>s+Number(e.amount),0);
-    return{k,artist,title,delPaid,delAmt,delQty,expense,profit:delPaid-expense};
-  });
-  const byArtist=artists.map(artist=>{
-    const delPaid=data.deliveries.filter(d=>d.paid&&d.artist===artist).reduce((s,d)=>s+d.qty*d.unitPrice,0);
-    const delAmt=data.deliveries.filter(d=>d.artist===artist).reduce((s,d)=>s+d.qty*d.unitPrice,0);
-    const delQty=data.deliveries.filter(d=>d.artist===artist).reduce((s,d)=>s+Number(d.qty),0);
-    const expense=data.expenses.filter(e=>e.artist===artist).reduce((s,e)=>s+Number(e.amount),0);
-    return{k:artist,artist,title:"",delPaid,delAmt,delQty,expense,profit:delPaid-expense};
-  });
-  const rows=view==="title"?byTitle:byArtist;
-  const maxAmt=Math.max(...rows.map(r=>Math.max(r.delPaid,r.expense)),1);
-  return(
-    <div>
-      <SectionHeader title={<div style={{display:"flex",gap:8}}>{["title","artist"].map(v=><button key={v} onClick={()=>setView(v)} style={{padding:"5px 14px",border:"none",borderRadius:6,cursor:"pointer",fontSize:12,fontWeight:600,background:view===v?"#a855f7":"#2a2a3a",color:view===v?"#fff":"#888"}}>{v==="title"?"作品別":"アーティスト別"}</button>)}</div>} right={null}/>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        {rows.map(r=>{
-          const name=view==="title"?`${r.artist} / ${r.title}`:r.artist;
-          return(
-            <div key={r.k} style={{background:"#1a1a24",border:"1px solid #2a2a3a",borderRadius:10,padding:"14px 16px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,flexWrap:"wrap",gap:6}}>
-                <div><div style={{fontWeight:700,fontSize:13,color:"#e8e8f0",marginBottom:2}}>{name}</div><div style={{fontSize:11,color:"#666"}}>卸し総数 {fmt(r.delQty)}枚 ／ 卸し金額 ¥{fmt(r.delAmt)}</div></div>
-                <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                  <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#777"}}>売上（回収済）</div><div style={{fontSize:15,fontWeight:700,color:"#a855f7"}}>¥{fmt(r.delPaid)}</div></div>
-                  <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#777"}}>経費</div><div style={{fontSize:15,fontWeight:700,color:"#ef4444"}}>¥{fmt(r.expense)}</div></div>
-                  <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#777"}}>収支</div><div style={{fontSize:15,fontWeight:700,color:r.profit>=0?"#22c55e":"#ef4444"}}>¥{fmt(r.profit)}</div></div>
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:5}}>
-                <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:11,color:"#888",width:60,flexShrink:0}}>売上</span><div style={{flex:1,background:"#2a2a3a",borderRadius:3,height:5}}><div style={{width:`${Math.min((r.delPaid/maxAmt)*100,100)}%`,background:"#a855f7",borderRadius:3,height:5}}/></div></div>
-                <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:11,color:"#888",width:60,flexShrink:0}}>経費</span><div style={{flex:1,background:"#2a2a3a",borderRadius:3,height:5}}><div style={{width:`${Math.min((r.expense/maxAmt)*100,100)}%`,background:"#ef4444",borderRadius:3,height:5}}/></div></div>
-              </div>
-            </div>
-          );
-        })}
-        {rows.length===0&&<Empty text="データがありません"/>}
-      </div>
-    </div>
-  );
-}
+  const artists = [...new Set(state.inventory.map(i=>i.artist).filter(Boolean))];
 
-function TrashTab({trash,editLog,onRestore,onDelete}){
-  const[v,setV]=useState("trash");
-  return(
-    <div>
-      <div style={{display:"flex",gap:6,marginBottom:16}}>
-        {["trash","log"].map(vv=><button key={vv} onClick={()=>setV(vv)} style={{padding:"6px 16px",border:"none",borderRadius:7,cursor:"pointer",fontWeight:600,fontSize:12,background:v===vv?"#b45309":"#2a2a3a",color:v===vv?"#fff":"#888"}}>{vv==="trash"?`🗑 ゴミ箱 (${trash.length})`:`📋 編集履歴 (${editLog.length})`}</button>)}
-        {v==="trash"&&trash.length>0&&<button onClick={()=>onDelete()} style={{marginLeft:"auto",padding:"6px 14px",border:"1px solid #ef4444",borderRadius:7,cursor:"pointer",fontSize:12,background:"transparent",color:"#ef4444"}}>すべて完全削除</button>}
-      </div>
-      {v==="trash"&&(trash.length===0?<Empty text="ゴミ箱は空です"/>:
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {trash.map(t=>(
-            <div key={t.id} style={{background:"#1a1a24",border:"1px solid #2a2a3a",borderRadius:9,padding:"11px 14px",display:"flex",alignItems:"center",gap:10}}>
-              <div style={{flex:1}}><div style={{display:"flex",gap:7,alignItems:"center",marginBottom:4}}><Badge bg="#2a1a00" color="#f59e0b">{TYPE_LABELS[t.type]}</Badge><span style={{fontSize:11,color:"#555"}}>{t.deletedAt}</span></div><div style={{fontSize:12,color:"#bbb"}}>{descItem(t.type,t.item)}</div></div>
-              <div style={{display:"flex",gap:5}}><Btn onClick={()=>onRestore(t.id)} style={{background:"#14532d",color:"#22c55e",fontSize:11}}>復元</Btn><Btn onClick={()=>onDelete(t.id)} style={{background:"#3a1a1a",color:"#ef4444",fontSize:11}}>完全削除</Btn></div>
-            </div>
-          ))}
-        </div>
-      )}
-      {v==="log"&&(editLog.length===0?<Empty text="編集履歴はありません"/>:
-        <Tbl><thead><tr>{["日時","種別","変更前","変更後"].map(h=><Th key={h}>{h}</Th>)}</tr></thead>
-          <tbody>{editLog.map((e,i)=>(
-            <tr key={i}><Td style={{color:"#555",whiteSpace:"nowrap",fontSize:11}}>{e.at}</Td><Td><Badge bg="#1e1a2a" color="#a855f7">{TYPE_LABELS[e.type]}</Badge></Td><Td style={{color:"#ef4444",fontSize:11}}>{descItem(e.type,e.before)}</Td><Td style={{color:"#22c55e",fontSize:11}}>{descItem(e.type,e.after)}</Td></tr>
-          ))}</tbody>
-        </Tbl>
-      )}
-    </div>
-  );
-}
-
-function ModalForm({modal,onClose,data,onSave}){
-  const{t,item}=modal;
-  const artists=[];
-  data.inventory.forEach(i=>{if(i.artist&&!artists.includes(i.artist))artists.push(i.artist);});
-  const artistTitles={};
-  data.inventory.forEach(i=>{
-    if(i.artist){
-      if(!artistTitles[i.artist])artistTitles[i.artist]=[];
-      if(!artistTitles[i.artist].includes(i.title))artistTitles[i.artist].push(i.title);
-    }
-  });
-  const defaults={
-    ws:{name:"",type:WS_TYPES[0],contact:"",terms:"",region:"国内",memo:""},
-    del:{date:TODAY,wholesaler:data.wholesalers[0]?.name||"",artist:artists[0]||"",title:"",format:FORMATS[0],qty:"",unitPrice:"",paid:false,memo:""},
-    pay:{date:TODAY,from:data.wholesalers[0]?.name||"",title:"",amount:"",status:PAY_STATUS[0],dueDate:"",memo:""},
-    inv:{artist:"",title:"",format:FORMATS[0],total:"",returned:"0",releaseDate:"",barcode:"",memo:""},
-    exp:{date:TODAY,category:EXPENSE_CATS[0],detail:"",amount:"",paid:false,artist:"",title:"",memo:""},
+  const calcRow = (filter) => {
+    const dPaid = state.deliveries.filter(d=>d.paid&&filter(d)).reduce((s,d)=>s+d.qty*d.unitPrice,0);
+    const dAmt  = state.deliveries.filter(filter).reduce((s,d)=>s+d.qty*d.unitPrice,0);
+    const dQty  = state.deliveries.filter(filter).reduce((s,d)=>s+Number(d.qty),0);
+    const exp   = state.expenses.filter(filter).reduce((s,e)=>s+Number(e.amount),0);
+    return {dPaid,dAmt,dQty,exp,profit:dPaid-exp};
   };
-  const[form,setForm]=useState(item?{...item}:defaults[t]);
-  const set=(k,v)=>setForm(f=>({...f,[k]:v}));
-  const titlesForArtist=artistTitles[form.artist]||[];
-  const typeMap={ws:"wholesalers",del:"deliveries",pay:"payments",inv:"inventory",exp:"expenses"};
-  const labelMap={ws:"卸先",del:"卸し履歴",pay:"入金・売上",inv:"在庫",exp:"経費"};
-  return(
-    <div style={{position:"fixed",inset:0,background:"#000b",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}} onClick={onClose}>
-      <div style={{background:"#1a1a24",border:"1px solid #2a2a3a",borderRadius:13,padding:24,width:420,maxWidth:"95vw",maxHeight:"90vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 16px",fontSize:14}}>{item?"編集":"追加"} — {labelMap[t]}</h3>
-        {t==="ws"&&<><MF l="卸先名" k="name" form={form} set={set}/><MS l="種別" k="type" form={form} set={set} opts={WS_TYPES}/><MF l="地域" k="region" form={form} set={set}/><MF l="連絡先" k="contact" form={form} set={set}/><MF l="支払条件" k="terms" form={form} set={set}/><MF l="メモ" k="memo" form={form} set={set}/></>}
-        {t==="del"&&<>
-          <MF l="卸し日" k="date" form={form} set={set} type="date"/>
-          <MS l="卸先" k="wholesaler" form={form} set={set} opts={data.wholesalers.map(w=>w.name)}/>
-          <MS l="アーティスト" k="artist" form={form} set={set} opts={artists} onChange={v=>{set("artist",v);set("title","");}}/>
-          <MS l="タイトル" k="title" form={form} set={set} opts={titlesForArtist.length?titlesForArtist:["（先にアーティストを選択）"]}/>
-          <MS l="形態" k="format" form={form} set={set} opts={FORMATS}/>
-          <MF l="枚数" k="qty" form={form} set={set} type="number"/>
-          <MF l="単価（円）" k="unitPrice" form={form} set={set} type="number"/>
-          <MCB l="入金済み" k="paid" form={form} set={set} color="#22c55e"/>
-          <MF l="メモ" k="memo" form={form} set={set}/>
-        </>}
-        {t==="pay"&&<>
-          <MF l="日付" k="date" form={form} set={set} type="date"/>
-          <MS l="入金元" k="from" form={form} set={set} opts={data.wholesalers.map(w=>w.name)}/>
-          <MF l="件名" k="title" form={form} set={set}/>
-          <MF l="金額（円）" k="amount" form={form} set={set} type="number"/>
-          <MS l="ステータス" k="status" form={form} set={set} opts={PAY_STATUS}/>
-          <MF l="入金期限" k="dueDate" form={form} set={set} type="date"/>
-          <MF l="メモ" k="memo" form={form} set={set}/>
-        </>}
-        {t==="inv"&&<>
-          <MF l="アーティスト名" k="artist" form={form} set={set}/>
-          <MF l="タイトル" k="title" form={form} set={set}/>
-          <MS l="形態" k="format" form={form} set={set} opts={FORMATS}/>
-          <MF l="発売日" k="releaseDate" form={form} set={set} type="date"/>
-          <MF l="製造数" k="total" form={form} set={set} type="number"/>
-          <MF l="返品数" k="returned" form={form} set={set} type="number"/>
-          <MF l="バーコード（JAN等）" k="barcode" form={form} set={set}/>
-          <MF l="メモ" k="memo" form={form} set={set}/>
-        </>}
-        {t==="exp"&&<>
-          <MF l="日付" k="date" form={form} set={set} type="date"/>
-          <MS l="カテゴリ" k="category" form={form} set={set} opts={EXPENSE_CATS}/>
-          <MF l="内容" k="detail" form={form} set={set}/>
-          <MF l="金額（円）" k="amount" form={form} set={set} type="number"/>
-          <MCB l="支払済み" k="paid" form={form} set={set} color="#22c55e"/>
-          <div style={{marginBottom:12,padding:"10px 12px",background:"#13131a",borderRadius:8,border:"1px solid #2a2a3a"}}>
-            <div style={{fontSize:11,color:"#777",marginBottom:8}}>関連作品（任意）</div>
-            <MS l="アーティスト" k="artist" form={form} set={set} opts={["（未設定）",...artists]} onChange={v=>{set("artist",v==="（未設定）"?"":v);set("title","");}}/>
-            <MS l="タイトル" k="title" form={form} set={set} opts={["（未設定）",...(artistTitles[form.artist]||[])]}/>
-          </div>
-          <MF l="メモ" k="memo" form={form} set={set}/>
-        </>}
-        <div style={{display:"flex",gap:7,justifyContent:"flex-end",marginTop:16}}>
-          <Btn onClick={onClose}>キャンセル</Btn>
-          <Btn onClick={()=>onSave(typeMap[t],form,item||null)} style={{background:"#a855f7",color:"#fff"}}>保存</Btn>
+
+  const rows = analysisView==='title'
+    ? titleKeys.map(({k,artist,title})=>({name:`${artist} / ${title}`, ...calcRow(x=>(x.title===title||x.title===title)&&x.artist===artist)}))
+    : artists.map(a=>({name:a, ...calcRow(x=>x.artist===a)}));
+
+  const maxAmt = Math.max(...rows.map(r=>Math.max(r.dPaid,r.exp)),1);
+  const cards = rows.map(r=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+        <div>
+          <div style="font-weight:700;font-size:12px;margin-bottom:2px">${r.name}</div>
+          <div style="font-size:10px;color:#666">卸し${fmt(r.dQty)}枚 / 卸し金額 ¥${fmt(r.dAmt)}</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="text-align:right"><div style="font-size:9px;color:#777">売上(回収済)</div><div style="font-size:14px;font-weight:700;color:#a855f7">¥${fmt(r.dPaid)}</div></div>
+          <div style="text-align:right"><div style="font-size:9px;color:#777">経費</div><div style="font-size:14px;font-weight:700;color:#ef4444">¥${fmt(r.exp)}</div></div>
+          <div style="text-align:right"><div style="font-size:9px;color:#777">収支</div><div style="font-size:14px;font-weight:700;color:${r.profit>=0?'#22c55e':'#ef4444'}">¥${fmt(r.profit)}</div></div>
         </div>
       </div>
-    </div>
-  );
+      <div class="bar-wrap" style="margin-bottom:4px"><span style="font-size:10px;color:#888;width:50px">売上</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min((r.dPaid/maxAmt)*100,100)}%;background:#a855f7"></div></div></div>
+      <div class="bar-wrap"><span style="font-size:10px;color:#888;width:50px">経費</span><div class="bar-bg"><div class="bar-fill" style="width:${Math.min((r.exp/maxAmt)*100,100)}%;background:#ef4444"></div></div></div>
+    </div>`).join('');
+
+  const btns = ['title','artist'].map(v=>`<button class="filter-btn ${analysisView===v?'active':''}" onclick="setAnalysisView('${v}')">${v==='title'?'作品別':'アーティスト別'}</button>`).join('');
+  return `<div style="margin-bottom:14px">${btns}</div>${rows.length===0?'<div class="empty">データがありません</div>':cards}`;
 }
 
-const inpS={width:"100%",padding:"7px 10px",background:"#0f0f13",border:"1px solid #2a2a3a",borderRadius:7,color:"#e8e8f0",fontSize:12,boxSizing:"border-box"};
-function MF({l,k,form,set,type}){return<div style={{marginBottom:11}}><label style={{display:"block",fontSize:11,color:"#888",marginBottom:3}}>{l}</label><input type={type||"text"} value={form[k]||""} onChange={e=>set(k,e.target.value)} style={inpS}/></div>;}
-function MS({l,k,form,set,opts,onChange}){return<div style={{marginBottom:11}}><label style={{display:"block",fontSize:11,color:"#888",marginBottom:3}}>{l}</label><select value={form[k]||""} onChange={e=>{const v=e.target.value;onChange?onChange(v):set(k,v);}} style={inpS}>{(opts||[]).map(o=><option key={o} value={o}>{o}</option>)}</select></div>;}
-function MCB({l,k,form,set,color}){return<div style={{marginBottom:11}}><label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:12}}><input type="checkbox" checked={!!form[k]} onChange={e=>set(k,e.target.checked)} style={{width:14,height:14,accentColor:color||"#a855f7"}}/><span style={{color:form[k]?(color||"#a855f7"):"#888"}}>{l}</span></label></div>;}
+// ── TRASH ──────────────────────────────────────────────
+let trashView = 'trash';
+function setTrashView(v){ trashView=v; render(); }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+function renderTrash(){
+  const btns = `
+    <button class="filter-btn ${trashView==='trash'?'active':''}" onclick="setTrashView('trash')">🗑 ゴミ箱 (${trash.length})</button>
+    <button class="filter-btn ${trashView==='log'?'active':''}" onclick="setTrashView('log')">📋 編集履歴 (${editLog.length})</button>
+    ${trashView==='trash'&&trash.length>0?`<button class="btn btn-danger" style="margin-left:auto" onclick="emptyTrash()">すべて完全削除</button>`:''}`;
+
+  if(trashView==='log'){
+    const rows = editLog.map(e=>`<tr>
+      <td style="color:#555;font-size:10px;white-space:nowrap">${e.at}</td>
+      <td>${badge(e.type,'#1e1a2a','#a855f7')}</td>
+      <td style="font-size:11px;color:#ef4444">${e.desc}</td>
+    </tr>`).join('');
+    return `<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${btns}</div>
+      ${editLog.length===0?'<div class="empty">編集履歴はありません</div>':
+      `<div class="tbl-wrap"><table><thead><tr><th>日時</th><th>種別</th><th>内容</th></tr></thead><tbody>${rows}</tbody></table></div>`}`;
+  }
+
+  const items = trash.length===0 ? '<div class="empty">ゴミ箱は空です</div>'
+    : trash.map(t=>`
+      <div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="display:flex;gap:6px;margin-bottom:3px">${badge(t.type,'#2a1a00','#f59e0b')}<span style="font-size:10px;color:#555">${t.deletedAt}</span></div>
+          <div style="font-size:11px;color:#bbb">${t.desc}</div>
+        </div>
+        <button class="btn btn-sm btn-green" onclick="restoreItem(${t.id})">復元</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteFromTrash(${t.id})">完全削除</button>
+      </div>`).join('');
+
+  return `<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${btns}</div>${items}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+function deleteItem(type, id){
+  snapshot();
+  const item = state[type].find(x=>x.id===id);
+  if(!item) return;
+  const descMap = {
+    wholesalers: i=>`${i.name}（${i.type}）`,
+    deliveries:  i=>`${i.date} ${i.wholesaler} ${i.artist}-${i.title} ${fmt(i.qty)}枚`,
+    payments:    i=>`${i.date} ${i.from} ¥${fmt(i.amount)} ${i.status}`,
+    inventory:   i=>`${i.artist}/${i.title} ${i.format} 製造${fmt(i.total)}枚`,
+    expenses:    i=>`${i.date} ${i.category}/${i.detail} ¥${fmt(i.amount)}`,
+  };
+  trash.unshift({id:Date.now(), type, item:deepCopy(item), deletedAt:new Date().toLocaleString('ja-JP'), desc:descMap[type]?.(item)||''});
+  state[type] = state[type].filter(x=>x.id!==id);
+  save(); render(); showToast('ゴミ箱に移動しました','#f59e0b');
+}
+
+function restoreItem(tid){
+  const entry = trash.find(x=>x.id===tid);
+  if(!entry) return;
+  snapshot();
+  state[entry.type].push(entry.item);
+  trash = trash.filter(x=>x.id!==tid);
+  save(); render(); showToast('復元しました ✓');
+}
+
+function deleteFromTrash(tid){ trash=trash.filter(x=>x.id!==tid); render(); }
+function emptyTrash(){ trash=[]; render(); }
+
+// ── Toggle paid（卸し入金 → 入金・売上に自動連動）──────
+function togglePaid(id){
+  snapshot();
+  const del = state.deliveries.find(x=>x.id===id);
+  if(!del) return;
+  const newPaid = !del.paid;
+  del.paid = newPaid;
+
+  if(newPaid){
+    // 既に自動生成済みでなければ追加
+    if(!state.payments.some(p=>p.sourceDeliveryId===id)){
+      state.payments.push({
+        id: nextId(state.payments),
+        date: TODAY,
+        from: del.wholesaler,
+        title: `${del.artist} / ${del.title}（${del.format}）卸し精算`,
+        amount: del.qty * del.unitPrice,
+        status: '入金済',
+        dueDate: TODAY,
+        memo: '卸し履歴から自動生成',
+        sourceDeliveryId: id,
+      });
+    }
+  } else {
+    // チェックOFF → 自動生成レコードを削除
+    state.payments = state.payments.filter(p=>p.sourceDeliveryId!==id);
+  }
+  save(); render(); showToast('入金状況を更新しました ✓');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════
+let modalType = null;
+let modalId = null;
+
+function openModal(type, id=null){
+  modalType=type; modalId=id;
+  const typeMap = {ws:'wholesalers',del:'deliveries',pay:'payments',inv:'inventory',exp:'expenses'};
+  const labelMap = {ws:'卸先',del:'卸し履歴',pay:'入金・売上',inv:'在庫',exp:'経費'};
+  const item = id ? state[typeMap[type]].find(x=>x.id===id) : null;
+  const artists = [...new Set(state.inventory.map(i=>i.artist).filter(Boolean))];
+  const atMap = {};
+  state.inventory.forEach(i=>{ if(i.artist){ atMap[i.artist]=atMap[i.artist]||[]; if(!atMap[i.artist].includes(i.title)) atMap[i.artist].push(i.title); } });
+
+  const selOpts = (opts,val) => opts.map(o=>`<option value="${o}" ${o===val?'selected':''}>${o}</option>`).join('');
+  const inp = (l,k,v,t='text') => `<div class="form-field"><label>${l}</label><input type="${t}" id="f_${k}" value="${v||''}"></div>`;
+  const sel = (l,k,v,opts) => `<div class="form-field"><label>${l}</label><select id="f_${k}">${selOpts(opts,v)}</select></div>`;
+  const chk = (l,k,v) => `<div class="form-field"><label class="checkbox-label"><input type="checkbox" id="f_${k}" ${v?'checked':''}><span>${l}</span></label></div>`;
+
+  let fields = '';
+  if(type==='ws'){
+    fields = inp('卸先名','name',item?.name)+sel('種別','type',item?.type,WS_TYPES)+inp('地域','region',item?.region)+inp('連絡先','contact',item?.contact)+inp('支払条件','terms',item?.terms)+inp('メモ','memo',item?.memo);
+  } else if(type==='del'){
+    const selArtist = sel('アーティスト','artist',item?.artist||artists[0],artists);
+    const curArtist = item?.artist||artists[0];
+    const titles = atMap[curArtist]||[];
+    fields = inp('卸し日','date',item?.date||TODAY,'date')+sel('卸先','wholesaler',item?.wholesaler,state.wholesalers.map(w=>w.name))+selArtist+sel('タイトル','title',item?.title,titles.length?titles:['（在庫登録が必要）'])+sel('形態','format',item?.format,FORMATS)+inp('枚数','qty',item?.qty,'number')+inp('単価（円）','unitPrice',item?.unitPrice,'number')+chk('入金済み','paid',item?.paid)+inp('メモ','memo',item?.memo);
+  } else if(type==='pay'){
+    fields = inp('日付','date',item?.date||TODAY,'date')+sel('入金元','from',item?.from,state.wholesalers.map(w=>w.name))+inp('件名','title',item?.title)+inp('金額（円）','amount',item?.amount,'number')+sel('ステータス','status',item?.status,PAY_STATUS)+inp('入金期限','dueDate',item?.dueDate,'date')+inp('メモ','memo',item?.memo);
+  } else if(type==='inv'){
+    fields = inp('アーティスト','artist',item?.artist)+inp('タイトル','title',item?.title)+sel('形態','format',item?.format,FORMATS)+inp('発売日','releaseDate',item?.releaseDate,'date')+inp('製造数','total',item?.total,'number')+inp('返品数','returned',item?.returned||0,'number')+inp('バーコード','barcode',item?.barcode)+inp('メモ','memo',item?.memo);
+  } else if(type==='exp'){
+    fields = inp('日付','date',item?.date||TODAY,'date')+sel('カテゴリ','category',item?.category,EXPENSE_CATS)+inp('内容','detail',item?.detail)+inp('金額（円）','amount',item?.amount,'number')+chk('支払済み','paid',item?.paid)+sel('アーティスト（任意）','artist',item?.artist||'',['',...artists])+inp('タイトル（任意）','title',item?.title)+inp('メモ','memo',item?.memo);
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'modalOverlay';
+  overlay.onclick = e=>{ if(e.target===overlay) closeModal(); };
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3 style="margin:0 0 14px;font-size:13px">${item?'編集':'追加'} — ${labelMap[type]}</h3>
+      ${fields}
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:14px">
+        <button class="btn" onclick="closeModal()">キャンセル</button>
+        <button class="btn btn-primary" onclick="saveModal()">保存</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function closeModal(){
+  const o = document.getElementById('modalOverlay');
+  if(o) o.remove();
+}
+
+function g(k){ const el=document.getElementById('f_'+k); if(!el)return''; return el.type==='checkbox'?el.checked:el.value; }
+
+function saveModal(){
+  snapshot();
+  const typeMap = {ws:'wholesalers',del:'deliveries',pay:'payments',inv:'inventory',exp:'expenses'};
+  const type = typeMap[modalType];
+  let item = {};
+
+  if(modalType==='ws') item={name:g('name'),type:g('type'),contact:g('contact'),terms:g('terms'),region:g('region'),memo:g('memo')};
+  else if(modalType==='del') item={date:g('date'),wholesaler:g('wholesaler'),artist:g('artist'),title:g('title'),format:g('format'),qty:Number(g('qty')),unitPrice:Number(g('unitPrice')),paid:g('paid'),memo:g('memo')};
+  else if(modalType==='pay') item={date:g('date'),from:g('from'),title:g('title'),amount:Number(g('amount')),status:g('status'),dueDate:g('dueDate'),memo:g('memo')};
+  else if(modalType==='inv') item={artist:g('artist'),title:g('title'),format:g('format'),total:Number(g('total')),returned:Number(g('returned'))||0,releaseDate:g('releaseDate'),barcode:g('barcode'),memo:g('memo')};
+  else if(modalType==='exp') item={date:g('date'),category:g('category'),detail:g('detail'),amount:Number(g('amount')),paid:g('paid'),artist:g('artist'),title:g('title'),memo:g('memo')};
+
+  if(modalId){
+    const old = state[type].find(x=>x.id===modalId);
+    item.id = modalId;
+    if(old?.sourceDeliveryId) item.sourceDeliveryId = old.sourceDeliveryId;
+    editLog.unshift({type, desc:`${JSON.stringify(old)} → ${JSON.stringify(item)}`, at:new Date().toLocaleString('ja-JP')});
+    state[type] = state[type].map(x=>x.id===modalId?item:x);
+  } else {
+    item.id = nextId(state[type]);
+    state[type].push(item);
+  }
+  save(); closeModal(); render();
+  showToast(modalId?'保存しました ✓':'追加しました ✓');
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+function exportCSV(){
+  let out = '';
+  const sheets = {
+    '卸先': state.wholesalers.map(w=>({名前:w.name,種別:w.type,連絡先:w.contact,支払条件:w.terms,地域:w.region})),
+    '卸し履歴': state.deliveries.map(d=>({日付:d.date,卸先:d.wholesaler,アーティスト:d.artist,タイトル:d.title,形態:d.format,枚数:d.qty,単価:d.unitPrice,合計:d.qty*d.unitPrice,入金:d.paid?'済':'未'})),
+    '入金売上': state.payments.map(p=>({日付:p.date,入金元:p.from,件名:p.title,金額:p.amount,状態:p.status,期限:p.dueDate||''})),
+    '在庫': state.inventory.map(i=>({アーティスト:i.artist,タイトル:i.title,形態:i.format,製造数:i.total,返品:i.returned,在庫残:calcStock(i),発売日:i.releaseDate||'',バーコード:i.barcode||''})),
+    '経費': state.expenses.map(e=>({日付:e.date,カテゴリ:e.category,内容:e.detail,金額:e.amount,支払:e.paid?'済':'未',アーティスト:e.artist||'',タイトル:e.title||''})),
+  };
+  Object.entries(sheets).forEach(([n,rows])=>{
+    if(!rows.length) return;
+    out+=`# ${n}\n`+Object.keys(rows[0]).join(',')+'\n'+rows.map(r=>Object.values(r).map(v=>`"${v}"`).join(',')).join('\n')+'\n\n';
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+out],{type:'text/csv;charset=utf-8;'}));
+  a.download=`label_${TODAY}.csv`;a.click();
+  showToast('CSVを保存しました ✓');
+}
+
+function exportJSON(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));
+  a.download=`label_backup_${TODAY}.json`;a.click();
+  showToast('バックアップを保存しました ✓');
+}
+
+function importJSON(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const imp=JSON.parse(ev.target.result);
+        if(!imp.wholesalers||!imp.inventory)throw new Error();
+        snapshot(); state=imp; save(); render();
+        showToast('データを読み込みました ✓');
+      }catch{ showToast('JSONファイルが不正です','#ef4444'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+render();
 </script>
 </body>
 </html>
