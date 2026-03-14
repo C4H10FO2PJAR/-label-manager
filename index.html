@@ -74,6 +74,7 @@ input:focus,select:focus{outline:none;border-color:#a855f7}
     <button class="btn" onclick="exportCSV()">⬇ CSV</button>
     <button class="btn" style="color:#38bdf8" onclick="exportJSON()">💾 バックアップ</button>
     <button class="btn" style="color:#22c55e" onclick="importJSON()">📂 復元</button>
+    <button class="btn" style="color:#ef4444" onclick="confirmReset()">🗑 初期化</button>
   </div>
 </div>
 
@@ -541,6 +542,58 @@ function renderTrash(){
   return `<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">${btns}</div>${items}`;
 }
 
+function confirmReset(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'resetOverlay';
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:360px;text-align:center">
+      <div style="font-size:28px;margin-bottom:10px">⚠️</div>
+      <h3 style="margin:0 0 10px;font-size:14px;color:#ef4444">全データを初期化しますか？</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:6px">卸先・卸し履歴・入金・在庫・経費など<br>すべてのデータが削除されます。</p>
+      <p style="font-size:11px;color:#f97316;margin-bottom:18px">この操作は元に戻せません。<br>必要であれば先にバックアップを保存してください。</p>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn" onclick="document.getElementById('resetOverlay').remove()">キャンセル</button>
+        <button class="btn" style="background:#7f1d1d;color:#ef4444" onclick="confirmReset2()">次へ進む →</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function confirmReset2(){
+  document.getElementById('resetOverlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'resetOverlay2';
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:360px;text-align:center">
+      <div style="font-size:28px;margin-bottom:10px">🚨</div>
+      <h3 style="margin:0 0 12px;font-size:14px;color:#ef4444">本当に初期化しますか？</h3>
+      <p style="font-size:12px;color:#aaa;margin-bottom:14px">確認のため「初期化する」と入力してください</p>
+      <input id="resetConfirmInput" type="text" placeholder="初期化する" style="text-align:center;margin-bottom:14px">
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn" onclick="document.getElementById('resetOverlay2').remove()">キャンセル</button>
+        <button class="btn btn-danger" onclick="executeReset()">初期化実行</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function executeReset(){
+  const input = document.getElementById('resetConfirmInput')?.value?.trim();
+  if(input !== '初期化する'){
+    showToast('入力が一致しません','#ef4444');
+    return;
+  }
+  document.getElementById('resetOverlay2')?.remove();
+  const EMPTY = {wholesalers:[],deliveries:[],payments:[],inventory:[],expenses:[]};
+  state = deepCopy(EMPTY);
+  trash = []; past = []; editLog = [];
+  localStorage.removeItem(SK);
+  save(); updateUndoBtn(); render();
+  showToast('初期化しました','#a855f7');
+}
+
 function deleteItem(type, id){
   snapshot();
   const item = state[type].find(x=>x.id===id);
@@ -554,6 +607,10 @@ function deleteItem(type, id){
   };
   trash.unshift({id:Date.now(), type, item:deepCopy(item), deletedAt:new Date().toLocaleString('ja-JP'), desc:descMap[type]?.(item)||''});
   state[type] = state[type].filter(x=>x.id!==id);
+  // 卸し履歴削除時：紐づく自動生成の入金レコードも連動削除
+  if(type==='deliveries'){
+    state.payments = state.payments.filter(p=>p.sourceDeliveryId!==id);
+  }
   save(); render(); showToast('ゴミ箱に移動しました','#f59e0b');
 }
 
